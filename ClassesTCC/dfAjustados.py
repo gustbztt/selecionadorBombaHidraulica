@@ -29,9 +29,11 @@ class AjustaDados:
         if data_type == DataOptions.HM:
             self.lista_nomes = listaCaminhoHm
             self.lista_nomes_ajustados = listaCaminhoHmAjustado
+
         elif data_type == DataOptions.NPSH:
             self.lista_nomes = listaCaminhoNPSH
             self.lista_nomes_ajustados = listaCaminhoNPSHAjustado
+
         elif data_type == DataOptions.POTENCIA:
             self.lista_nomes = listaCaminhoPotencia
             self.lista_nomes_ajustados = listaCaminhoPotenciaAjustado
@@ -53,24 +55,30 @@ class AjustaDados:
         for i, nome in zip(curvas, self.lista_nomes_ajustados):
             if self.lista_nomes_ajustados == listaCaminhoHmAjustado:
                 bomba = GetCurvaBomba.ajustarHmBomba(i)
+
             elif self.lista_nomes_ajustados == listaCaminhoNPSHAjustado:
                 bomba = GetCurvaBomba.ajustarNPSHBomba(i)
+
             elif self.lista_nomes_ajustados == listaCaminhoPotenciaAjustado:
                 bomba = GetCurvaBomba.ajustarPotenciaBomba(i)
+
             bomba = pd.DataFrame(bomba)
             bomba = bomba.T
+
             if self.lista_nomes_ajustados == listaCaminhoHmAjustado:
                 bomba.columns = ["R_sq", "Hm", "Q"]
                 del bomba["R_sq"]
                 Hm = bomba.iloc[0]["Hm"]
                 Q = bomba.iloc[0]["Q"]
                 bomba = pd.DataFrame(list(zip(Q, Hm)), columns=["Q", "Hm"])
+
             elif self.lista_nomes_ajustados == listaCaminhoNPSHAjustado:
                 bomba.columns = ["R_sq", "NPSH", "Q"]
                 del bomba["R_sq"]
                 NPSH = bomba.iloc[0]["NPSH"]
                 Q = bomba.iloc[0]["Q"]
                 bomba = pd.DataFrame(list(zip(Q, NPSH)), columns=["Q", "NPSH"])
+
             elif self.lista_nomes_ajustados == listaCaminhoPotenciaAjustado:
                 bomba.columns = ["R_sq", "Potencia", "Q"]
                 del bomba["R_sq"]
