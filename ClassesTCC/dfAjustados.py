@@ -54,15 +54,7 @@ class AjustaDados:
 
         bombas = []
         for i, nome in zip(curvas, self.lista_nomes_ajustados):
-            if self.lista_nomes_ajustados == listaCaminhoHmAjustado:
-                bomba = GetCurvaBomba.ajustarHmBomba(i)
-
-            elif self.lista_nomes_ajustados == listaCaminhoNPSHAjustado:
-                bomba = GetCurvaBomba.ajustarNPSHBomba(i)
-
-            elif self.lista_nomes_ajustados == listaCaminhoPotenciaAjustado:
-                bomba = GetCurvaBomba.ajustarPotenciaBomba(i)
-
+            bomba = GetCurvaBomba.ajustarDadosBomba(i)
             bomba = pd.DataFrame(bomba)
             bomba = bomba.T
             bomba.columns = ["R_sq", self.data_type, "Q"]
