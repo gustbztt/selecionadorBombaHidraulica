@@ -16,9 +16,9 @@ from dfAjustados.constants import (
 
 
 class DataOptions(Enum):
-    HM = "HM"
+    HM = "Hm"
     NPSH = "NPSH"
-    POTENCIA = "POTENCIA"
+    POTENCIA = "Potencia"
 
 
 class AjustaDados:
@@ -40,6 +40,7 @@ class AjustaDados:
 
     def __init__(self, data_type: DataOptions):
         self.set_lista_dados_by_type(data_type=data_type)
+        self.data_type = data_type.value
 
     def get_lista_setada(self):
         numpy.set_printoptions(threshold=sys.maxsize)
@@ -64,28 +65,13 @@ class AjustaDados:
 
             bomba = pd.DataFrame(bomba)
             bomba = bomba.T
-
-            if self.lista_nomes_ajustados == listaCaminhoHmAjustado:
-                bomba.columns = ["R_sq", "Hm", "Q"]
-                del bomba["R_sq"]
-                Hm = bomba.iloc[0]["Hm"]
-                Q = bomba.iloc[0]["Q"]
-                bomba = pd.DataFrame(list(zip(Q, Hm)), columns=["Q", "Hm"])
-
-            elif self.lista_nomes_ajustados == listaCaminhoNPSHAjustado:
-                bomba.columns = ["R_sq", "NPSH", "Q"]
-                del bomba["R_sq"]
-                NPSH = bomba.iloc[0]["NPSH"]
-                Q = bomba.iloc[0]["Q"]
-                bomba = pd.DataFrame(list(zip(Q, NPSH)), columns=["Q", "NPSH"])
-
-            elif self.lista_nomes_ajustados == listaCaminhoPotenciaAjustado:
-                bomba.columns = ["R_sq", "Potencia", "Q"]
-                del bomba["R_sq"]
-                Potencia = bomba.iloc[0]["Potencia"]
-                Q = bomba.iloc[0]["Q"]
-                bomba = pd.DataFrame(list(zip(Q, Potencia)), columns=["Q", "Potencia"])
-
+            bomba.columns = ["R_sq", self.data_type, "Q"]
+            del bomba["R_sq"]
+            values_list = bomba.iloc[0][self.data_type]
+            Q = bomba.iloc[0]["Q"]
+            bomba = pd.DataFrame(
+                list(zip(Q, values_list)), columns=["Q", self.data_type]
+            )
             bombas.append(bomba)
             bomba.to_csv(nome, index=False)
 
