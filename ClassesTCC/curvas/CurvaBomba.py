@@ -5,12 +5,6 @@ import pandas as pd
 from typing_extensions import Self
 
 
-class DataOptions(Enum):
-    HM = "Hm"
-    NPSH = "NPSH"
-    POTENCIA = "Potencia"
-
-
 class GetCurvaBomba:
     """
     arquivo: str (path)
