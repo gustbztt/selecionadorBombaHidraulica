@@ -31,4 +31,14 @@ def criar():
     return render_template()
 
 
+@app.route(
+    "/felipe",
+    methods=[
+        "POST",
+    ],
+)
+def note():
+    print(request.get_json())
+
+
 app.run(debug=True)
