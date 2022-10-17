@@ -46,7 +46,7 @@ class BombasHm(object):
     def fechar_conexao(self):
         self.db.close_db()
 
-    def criar_schema(self, schema_name="G:\\Scripts_Python\\create_schema.sql"):
+    def criar_schema(self, schema_name="G:\\Scripts_Python\\create_schemaHm.sql"):
         print(f"Criando tabela {self.tb_name}")
 
         try:
@@ -198,8 +198,7 @@ class BombasPotencia(object):
             print("Não conseguiu importar o csv")
             return
 
-
-'''    def ler_todos_dados(self):
+    def ler_todos_dados(self):
         sql = "SELECT * from bombasPotencia"
         r = self.db.cursor.execute(sql)
         return r.fetchall()
@@ -211,17 +210,16 @@ class BombasPotencia(object):
 
 
 hm = BombasHm()
-"""hm.criar_schema()
-hm.inserir_de_csv()"""
+hm.criar_schema()
+hm.inserir_de_csv()
 dfHm = hm.to_df()
 
 npsh = BombasNPSH()
-"""npsh.criar_schema()
-npsh.inserir_de_csv()"""
+npsh.criar_schema()
+npsh.inserir_de_csv()
 dfNPSH = npsh.to_df()
 
 potencia = BombasPotencia()
-"""potencia.criar_schema()
-potencia.inserir_de_csv()"""
+potencia.criar_schema()
+potencia.inserir_de_csv()
 dfPotencia = potencia.to_df()
-'''

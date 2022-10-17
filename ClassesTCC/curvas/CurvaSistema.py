@@ -77,48 +77,17 @@ class CurvaSistema:
             self.material, nivelConservadorismo
         ]
 
-        """    def setPerdaDeCarga(
-        self,
-        curva90RaioLongo,
-        curva90RaioMedio,
-        curva90RaioCurto,
-        curva45,
-        curva90RD12,
-        curva90RD1,
-        curva45_2,
-        entradaNormal,
-        entradaDeBorda,
-        registroGavetaAberto,
-        registroGloboAberto,
-        registroAnguloAberto,
-        tePassagemDireta,
-        teSaidaLado,
-        teSaidaBilateral,
-        valvulaPeCrivo,
-        saidaCanalizacao,
-        valvulaRetencaoLeve,
-        valvulaRetencaoPesado,
-            ):
-        self.curva90RaioLongo = curva90RaioLongo
-        self.curva90RaioMedio = curva90RaioMedio
-        self.curva90RaioCurto = curva90RaioCurto
-        self.curva45 = curva45
-        self.curva90RD12 = curva90RD12
-        self.curva90RD1 = curva90RD1
-        self.curva45_2 = curva45_2
-        self.entradaNormal = entradaNormal
-        entradaDeBorda
-        registroGavetaAberto
-        registroGloboAberto
-        registroAnguloAberto
-        tePassagemDireta
-        teSaidaLado
-        teSaidaBilateral
-        valvulaPeCrivo
-        saidaCanalizacao
-        valvulaRetencaoLeve
-        valvulaRetencaoPesado
-        """
+    def setViscosidade(self):
+
+        z = 273.15 / (self.temperaturaAgua + 273.15)
+        mi_zero = 0.001788
+        x = -1.704 - (5.306 * z) + (7.003 * z**2) + math.log(mi_zero)
+
+        self.mi = math.exp(x)
+
+    def setDensidade(self):
+
+        self.rho = 1000 - 0.0178 * (self.temperaturaAgua - 4) ** 1.7
 
     def calculaHm(self, index):
 
@@ -126,7 +95,7 @@ class CurvaSistema:
         retorna um valor único de Hm para uma determinada vazão
         """
         V = 4 * Q[index] / (math.pi * self.diametroCano**2)
-        reynolds = rho * V * self.diametroCano / mi
+        reynolds = self.rho * V * self.diametroCano / self.mi
         fatorDeAtrito = (
             1
             / (
@@ -171,11 +140,12 @@ class CurvaSistema:
         retorna um dataframe com os valores de Q e NPSHd.
         """
         # npshd = (p1-pv)/gamma + Hs - Hp12
+        self.gamma = self.rho * g
         P1 = (10330 - self.alturaInicial) * g / 0.9
         pv = 2340
         listaNPSHd = []
         for i in range(len(Q)):
-            NPSHd = (P1 - pv) / gamma - self.calculaHm(i) + self.alturaFinal
+            NPSHd = (P1 - pv) / self.gamma - self.calculaHm(i) + self.alturaFinal
             listaNPSHd.append(NPSHd)
         NPSHdSistema = {"Q": Q, "NPSHd": listaNPSHd}
         dfNPSHdSistema = pd.DataFrame(NPSHdSistema)
@@ -185,4 +155,8 @@ class CurvaSistema:
 
 curva1 = CurvaSistema(40, 2, 28, 0.0507, 46.8, "Aço carbono novo")
 curva1.setRugosidade("Rugosidade Absoluta")
-curva1.hmSistema()
+curva1.setDensidade()
+curva1.setViscosidade()
+a = curva1.hmSistema()
+
+print(a)
