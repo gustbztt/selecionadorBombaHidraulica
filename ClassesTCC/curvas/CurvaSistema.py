@@ -168,36 +168,3 @@ class CurvaSistema:
         dfNPSHdSistema = pd.DataFrame(NPSHdSistema)
 
         return dfNPSHdSistema
-
-
-"""dic = {
-    "temperatura": "30",
-    "diametro": "13",
-    "material": "chumbo",
-    "entradaNormal": "1",
-    "entradaDeBorda": "0",
-    "saidaCanalizacao": "0",
-    "curva90RaioLongo": "1",
-    "curva90RaioMedio": "1",
-    "curva90RaioCurto": "1",
-    "curva45": "1",
-    "curva90rd1": "2",
-    "registroGavetaAberto": "2",
-    "registroGloboAberto": "1",
-    "registroAnguloAberto": "2",
-    "TePassagemDireta": "3",
-    "TeSaidaLado": "1",
-    "TeSaidaBilateral": "1",
-    "valculaPeCrivo": "1",
-    "valvulaRetencaoLeve": "1",
-    "valvulaRetencaoPesado": "1",
-}
-
-curva1 = CurvaSistema(40, 2, 28, 0.0507, "Aço carbono novo")
-curva1.setRugosidade("Rugosidade Absoluta")
-curva1.setDensidade()
-curva1.setViscosidade()
-curva1.calculaPerda(dic)
-curva = curva1.hmSistema()
-
-print(curva)"""

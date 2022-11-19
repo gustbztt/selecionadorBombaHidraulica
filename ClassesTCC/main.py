@@ -1,7 +1,5 @@
-import sqlite3
+import copy
 
-import numpy as np
-import pandas as pd
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 
 from curvas.CurvaSistema import CurvaSistema
@@ -17,12 +15,6 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/next")
-def func():
-    temperatura = request.args.get("temperatura", "")
-    return f"temperatura = {temperatura}"
-
-
 @app.route(
     "/felipe",
     methods=[
@@ -35,7 +27,9 @@ def felipe():
     temperatura = float(temperatura)
 
     diametro1 = request.form.get("diametro")
-    diametro = 0.0508
+    diametro = copy.deepcopy(diametro1)
+    diametro = float(diametro)
+    diametro_funcao = diametro / 1000
 
     material = request.form.get("material")
 
@@ -44,9 +38,10 @@ def felipe():
 
     lRecalque = request.form.get("perdaRecalque")
     lRecalque = float(lRecalque)
+
     dic = request.form.to_dict()
 
-    curva1 = CurvaSistema(temperatura, lSuccao, lRecalque, diametro, material)
+    curva1 = CurvaSistema(temperatura, lSuccao, lRecalque, diametro_funcao, material)
     curva1.setRugosidade("Rugosidade Absoluta")
     curva1.setDensidade()
     curva1.setViscosidade()
