@@ -209,6 +209,83 @@ class BombasPotencia(object):
         return df
 
 
+'''class TabelaPerdas(object):
+    tb_name = "tabelaPerdas"
+
+    def __init__(self):
+        self.db = Connect("bombas.db")
+        self.tb_name
+
+    def fechar_conexao(self):
+        self.db.close_db()
+
+    def criar_schema(self, schema_name="G:\\Scripts_Python\\create_schema_perdas.sql"):
+        print(f"Criando tabela {self.tb_name}")
+
+        try:
+            with open(schema_name, "rt") as f:
+                schema = f.read()
+                self.db.cursor.executescript(schema)
+
+        except sqlite3.Error:
+            print(f"Aviso: A tabela {self.tb_name} já existe")
+            return False
+
+    def inserir_de_csv(
+        self,
+        file_name="C:\\Users\\Avell 1513\\Desktop\\TCC I\\JSON bombas\\tabelaPerdas.csv",
+    ):
+        try:
+            reader = csv.reader(open(file_name, "rt"), delimiter=";")
+            linha = (reader,)
+            # self.db.cursor.execute("""DELETE from tabelaPerdas""")
+            for linha in reader:
+                self.db.cursor.execute(
+                    """
+                INSERT INTO tabelaPerdas (`diâmetro (mm)`,
+                `diâmetro (pol)`,
+                `curva 90º raio longo`,
+                `curva 90° raio médio`,
+                `curva 90º raio curto`,
+                `curva 45°`,
+                `curva 90º R/D 1 1/2`,
+                `curva 90° r/d 1`,
+                `curva 45°2`,
+                `entrada normal`,
+                `entrada de borda`,
+                `registro de gaveta aberto`,
+                `registro de globo aberto`,
+                `registro de ângulo aberto`,
+                `tê passagem direta`,
+                `tê saída de lado`,
+                `tê saída bilateral`,
+                `válvula de pé e crivo`,
+                `saída da canalização`,
+                `válvula de retenção tipo leve`,
+                `válvula de retenção tipo pesado`)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    linha,
+                )
+
+            # gravando no bd
+            self.db.commit_db()
+            print("Dados importados do csv com sucesso.")
+
+        except sqlite3.IntegrityError:
+            print("Não conseguiu importar o csv")
+            return
+
+    def ler_todos_dados(self):
+        sql = "SELECT * from tabelaPerdas"
+        r = self.db.cursor.execute(sql)
+        return r.fetchall()
+
+    def to_df(self):
+        lista = self.ler_todos_dados()
+        df = pd.DataFrame(lista)
+        return df
+'''
+
 hm = BombasHm()
 hm.criar_schema()
 hm.inserir_de_csv()
@@ -223,3 +300,9 @@ potencia = BombasPotencia()
 potencia.criar_schema()
 potencia.inserir_de_csv()
 dfPotencia = potencia.to_df()
+
+'''perdas = TabelaPerdas()
+perdas.criar_schema()
+perdas.inserir_de_csv()
+dfperdas = perdas.to_df()
+'''

@@ -1,111 +1,179 @@
 <!DOCTYPE html>
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
-<style>
-    * {
-        box-sizing: border-box;
-    }
+<link rel="stylesheet" href="{{ url_for('static', filename='mainstyle.css') }}">
 
-    body {
-        background-color: #f1f1f1;
-    }
-
-    #dadosSistema {
-        background-color: #ffffff;
-        margin: 100px auto;
-        font-family: Raleway;
-        padding: 40px;
-        width: 70%;
-        min-width: 300px;
-    }
-
-    h1 {
-        text-align: center;
-    }
-
-    input {
-        padding: 10px;
-        width: 100%;
-        font-size: 17px;
-        font-family: Raleway;
-        border: 1px solid #aaaaaa;
-    }
-
-    /* Mark input boxes that gets an error on validation: */
-    input.invalid {
-        background-color: #ffdddd;
-    }
-
-    /* Hide all steps by default: */
-    .tab {
-        display: none;
-    }
-
-    button {
-        background-color: #04AA6D;
-        color: #ffffff;
-        border: none;
-        padding: 10px 20px;
-        font-size: 17px;
-        font-family: Raleway;
-        cursor: pointer;
-    }
-
-    button:hover {
-        opacity: 0.8;
-    }
-
-    #prevBtn {
-        background-color: #bbbbbb;
-    }
-
-    /* Make circles that indicate the steps of the form: */
-    .step {
-        height: 15px;
-        width: 15px;
-        margin: 0 2px;
-        background-color: #bbbbbb;
-        border: none;
-        border-radius: 50%;
-        display: inline-block;
-        opacity: 0.5;
-    }
-
-    .step.active {
-        opacity: 1;
-    }
-
-    /* Mark the steps that are finished and valid: */
-    .step.finish {
-        background-color: #04AA6D;
-    }
-</style>
 
 <body>
 
-    <form id="dadosSistema">
-        <h1>Register:</h1>
+    <form id="regForm" action="{{url_for('felipe')}}" method="post">
+
+        <h1>Características do Sistema</h1>
+
         <!-- One "tab" for each step in the form: -->
-        <div class="tab">Propriedades do líquido:
-            <p><input placeholder="Viscosidade" oninput="this.className = ''" name="viscosidade"></p>
-            <p><input placeholder="Temperatura (ºC)" oninput="this.className = ''" name="temperatura"></p>
+        <div class="tab">Temperatura (entre 0°C e 100°C):
+            <p><input type="number" placeholder="Temperatura..." min="0" max="100" step="1"
+                    oninput="this.className = ''" name="temperatura"></p>
         </div>
-        <div class="tab">Propriedades do sistema:
-            <p><input placeholder="Altura inicial" oninput="this.className = ''" name="alturaInicial"></p>
-            <p><input placeholder="Altura final" oninput="this.className = ''" name="alturaFinal"></p>
-            <p><input placeholder="Diamêtro do encanamento (mm)" oninput="this.className = ''" name="diametro"></p>
-            <p><input placeholder="Material" oninput="this.className = ''" name="material"></p>
+        <div class="tab">Encanamento:
+            <div>
+                <input type="radio" name="diametro" value="13" checked>
+                <label for="13">13 mm</label>
+            </div>
+
+            <div>
+                <input type="radio" name="diametro" value="19">
+                <label for="19">19 mm</label>
+            </div>
+
+            <div>
+                <input type="radio" name="diametro" value="25">
+                <label for="25">25 mm</label>
+            </div>
+            <div>
+                <input type="radio" name="diametro" value="32">
+                <label for="32">32 mm</label>
+            </div>
+            <div>
+                <input type="radio" name="diametro" value="38">
+                <label for="38">38 mm</label>
+            </div>
+            <div>
+                <input type="radio" name="diametro" value="50">
+                <label for="50">50 mm</label>
+            </div>
+            <div>
+                <input type="radio" name="diametro" value="63">
+                <label for="63">63 mm</label>
+            </div>
+            <div>
+                <input type="radio" name="diametro" value="75">
+                <label for="75">75 mm</label>
+            </div>
+            <div>
+                <input type="radio" name="diametro" value="100">
+                <label for="100">100 mm</label>
+            </div>
+            <div>
+                <input type="radio" name="diametro" value="125">
+                <label for="125">125 mm</label>
+            </div>
+            <div>
+                <input type="radio" name="diametro" value="150">
+                <label for="150">150 mm</label>
+            </div>
+            <div>
+                <input type="radio" name="diametro" value="200">
+                <label for="200">200 mm</label>
+            </div>
+            <div>
+                <input type="radio" name="diametro" value="250">
+                <label for="250">250 mm</label>
+            </div>
+            <div>
+                <input type="radio" name="diametro" value="300">
+                <label for="300">300 mm</label>
+            </div>
+
+            </fieldset>
+
         </div>
-        <div class="tab">Login Info:
-            <p><input placeholder="Username..." oninput="this.className = ''" name="uname"></p>
-            <p><input placeholder="Password...1" oninput="this.className = ''" name="pwsord" type="password"></p>
-            <p><input placeholder="Password..23." oninput="this.className = ''" name="pdgword" type="password"></p>
-            <p><input placeholder="Password..3." oninput="this.className = ''" name="pwogsrd" type="password"></p>
-            <p><input placeholder="Password..4." oninput="this.className = ''" name="pwsdord" type="password"></p>
-            <p><input placeholder="Password..5." oninput="this.className = ''" name="pwogrd" type="password"></p>
-            <p><input placeholder="Password.5.." oninput="this.className = ''" name="pwossdrd" type="password"></p>
-            <p><input placeholder="Password.6.." oninput="this.className = ''" name="pwosdgrd" type="password"></p>
+
+        <div class="tab">Material do encanamento:
+            <select name="material" id="material">
+                <option value="chumbo">Chumbo</option>
+                <option value="latao">Latão</option>
+                <option value="bronze">Bronze</option>
+                <option value="cobre">Cobre</option>
+                <option value="aluminio">Aluminio</option>
+                <option value="PVC">PVC</option>
+                <option value="acoInoxidavel">Aço Inoxidável</option>
+                <option value="acoComercial">Aço comercial</option>
+                <option value="acoCarbonoNovo">Aço Carbono Novo</option>
+                <option value="acoCarbonoPoucoDesgastado">Aço Carbono (pouco desgastado)</option>
+                <option value="acoCarbonoDesgastado">Aço Carbono (desgastado)</option>
+                <option value="acoCarbonoBemDesgastado">Aço Carbono (bem desgastado)</option>
+                <option value="acoFundidoNovo">Aço Fundido (novo)</option>
+                <option value="acoFundidoDesgastado">Aço Fundido (desgastado)</option>
+                <option value="acoFundidoEnferrujado">Aço Fundido (enferrujado)</option>
+                <option value="acoGalvanizado">Aço Galvanizado</option>
+                <option value="concreto">Concreto</option>
+                <option value="concretoMarcado">Concreto (marcado)</option>
+            </select>
+
+            <br><br>
+        </div>
+        <div class="tab">Entre com as quantidades indicadas:
+            <br>
+            <br>
+            <div>Lrec
+                <p><input type="number" placeholder="L recalque" oninput="this.className = ''" name="perdaRecalque"
+                        value="0"></p>
+            </div>
+            <div>Lsuc
+                <p><input type="number" placeholder="L sucção" oninput="this.className = ''" name="perdaSuccao"
+                        value="0"></p>
+            </div>
+
+            <div>Entrada normal:
+                <p><input type="number" placeholder="Entrada normal" oninput="this.className = ''" name="entradaNormal"
+                        value="0"></p>
+            </div>
+
+            <div>Entrada de borda
+                <p><input type="number" placeholder="Entrada de borda" oninput="this.className = ''"
+                        name="entradaDeBorda" value="0">
+                </p>
+            </div>
+
+            <div>Saída de canalização
+                <p><input type="number" placeholder="Saída da canalização" oninput="this.className = ''"
+                        name="saidaCanalizacao" value="0"></p>
+            </div>
+
+        </div>
+        <div class="tab">Entre com as quantidades indicadas:
+
+            <p><input type="number" placeholder="curva 90º raio longo" oninput="this.className = ''"
+                    name="curva90RaioLongo"></p>
+
+            <p><input type="number" placeholder="curva 90° raio médio" oninput="this.className = ''"
+                    name="curva90RaioMedio"></p>
+
+            <p><input type="number" placeholder="curva 90º raio curto" oninput="this.className = ''"
+                    name="curva90RaioCurto">
+            </p>
+            <p><input type="number" placeholder="curva 45°" oninput="this.className = ''" name="curva45"></p>
+
+            <p><input type="number" placeholder="curva 90° r/d 1" oninput="this.className = ''" name="curva90rd1"></p>
+
+            <p><input type="number" placeholder="registro de gaveta aberto" oninput="this.className = ''"
+                    name="registroGavetaAberto"></p>
+
+            <p><input type="number" placeholder="registro de globo aberto" oninput="this.className = ''"
+                    name="registroGloboAberto"></p>
+
+            <p><input type="number" placeholder="registro de ângulo aberto" oninput="this.className = ''"
+                    name="registroAnguloAberto"></p>
+
+            <p><input type="number" placeholder="T passagem direta" oninput="this.className = ''"
+                    name="TePassagemDireta"></p>
+
+            <p><input type="number" placeholder="T saída de lado" oninput="this.className = ''" name="TeSaidaLado"></p>
+
+            <p><input type="number" placeholder="T saída bilateral" oninput="this.className = ''"
+                    name="TeSaidaBilateral"></p>
+
+            <p><input type="number" placeholder="Válvula de pé e crivo" oninput="this.className = ''"
+                    name="valculaPeCrivo"></p>
+
+
+            <p><input type="number" placeholder="Válvula de retenção tipo leve" oninput="this.className = ''"
+                    name="valvulaRetencaoLeve"></p>
+
+            <p><input type="number" placeholder="Válvula de retenção tipo pesado" oninput="this.className = ''"
+                    name="valvulaRetencaoPesado"></p>
+
         </div>
         <div style="overflow:auto;">
             <div style="float:right;">
@@ -118,9 +186,11 @@
             <span class="step"></span>
             <span class="step"></span>
             <span class="step"></span>
+            <span class="step"></span>
+            <span class="step"></span>
+            <span class="step"></span>
         </div>
     </form>
-
 
     <script>
         var currentTab = 0; // Current tab is set to be the first tab (0)
@@ -157,7 +227,7 @@
             // if you have reached the end of the form...
             if (currentTab >= x.length) {
                 // ... the form gets submitted:
-                document.getElementById("dadosSistema").submit();
+                document.getElementById("regForm").submit();
                 return false;
             }
             // Otherwise, display the correct tab:

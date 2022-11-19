@@ -6,12 +6,12 @@ import pandas as pd
 
 from curvas.CurvaBomba import GetCurvaBomba
 from dfAjustados.constants import (
-    listaCaminhoHm,
-    listaCaminhoHmAjustado,
-    listaCaminhoNPSH,
-    listaCaminhoNPSHAjustado,
-    listaCaminhoPotencia,
-    listaCaminhoPotenciaAjustado,
+    lista_caminho_hm,
+    lista_caminho_hm_ajustado,
+    lista_caminho_NPSH,
+    lista_caminho_NPSH_ajustado,
+    lista_caminho_potencia,
+    lista_caminho_potencia_ajustado,
 )
 
 
@@ -27,16 +27,16 @@ class AjustaDados:
 
     def set_lista_dados_by_type(self, data_type):
         if data_type == DataOptions.HM:
-            self.lista_nomes = listaCaminhoHm
-            self.lista_nomes_ajustados = listaCaminhoHmAjustado
+            self.lista_nomes = lista_caminho_hm
+            self.lista_nomes_ajustados = lista_caminho_hm_ajustado
 
         elif data_type == DataOptions.NPSH:
-            self.lista_nomes = listaCaminhoNPSH
-            self.lista_nomes_ajustados = listaCaminhoNPSHAjustado
+            self.lista_nomes = lista_caminho_NPSH
+            self.lista_nomes_ajustados = lista_caminho_NPSH_ajustado
 
         elif data_type == DataOptions.POTENCIA:
-            self.lista_nomes = listaCaminhoPotencia
-            self.lista_nomes_ajustados = listaCaminhoPotenciaAjustado
+            self.lista_nomes = lista_caminho_potencia
+            self.lista_nomes_ajustados = lista_caminho_potencia_ajustado
 
     def __init__(self, data_type: DataOptions):
         self.set_lista_dados_by_type(data_type=data_type)

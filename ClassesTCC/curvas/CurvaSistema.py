@@ -4,15 +4,10 @@ import numpy as np
 import pandas as pd
 
 # from .constants import Q, V, rho, mi, g, gamma
-
-Q = np.arange(0.000001, 0.0083, 0.000001)
+step = 0.00001
+Q = np.arange(step, 0.0083, step)
 V = np.zeros(len(Q))
-
-
 g = 9.81
-rho = 998
-mi = 1.01 * 10**-3
-gamma = rho * g
 
 
 class Planilhas:
@@ -35,13 +30,7 @@ class Planilhas:
             sheet_name="Planilha1",
         )
 
-        dfPerdaDeCarga = pd.read_excel(
-            "C:\\Users\\Avell 1513\\Desktop\\TCC I\\TabelaPerdaDeCarga.xlsx",
-            sheet_name="Planilha1",
-        )
-
         self.dfRugosidade = dfRugosidade.set_index("Material")
-        self.dfPerdaDeCarga = dfPerdaDeCarga.set_index("diâmetro (mm)")
 
 
 class CurvaSistema:
@@ -51,20 +40,18 @@ class CurvaSistema:
     alturaInicial: float
     alturaFinal: float
     diametroCano: int
-    Lv: float (perda do sistema)
     material: str
 
     armazena os dados necessários para o cálculo da curva do sistema
     """
 
     def __init__(
-        self, temperaturaAgua, alturaInicial, alturaFinal, diametroCano, Lv, material
+        self, temperaturaAgua, alturaInicial, alturaFinal, diametroCano, material
     ):
         self.temperaturaAgua = temperaturaAgua
         self.alturaInicial = alturaInicial
         self.alturaFinal = alturaFinal
         self.diametroCano = diametroCano
-        self.Lv = Lv
         self.material = material
         self.planilhas = Planilhas()
 
@@ -89,6 +76,36 @@ class CurvaSistema:
 
         self.rho = 1000 - 0.0178 * (self.temperaturaAgua - 4) ** 1.7
 
+    def calculaPerda(self, dic):
+        tabPerdas = pd.read_excel(
+            "C:/Users/Avell 1513/Desktop/TCC I/TabelaPerdaDeCarga.xlsx"
+        )
+
+        df = pd.DataFrame(dic, index=[0])
+        df = df.T
+        df = df.rename(columns={0: "quantidade"})
+
+        dfPerdas = pd.DataFrame(tabPerdas)
+        dfPerdas = dfPerdas.T
+
+        diametro = dic.get("diametro")
+
+        dfPerdas = dfPerdas.merge(df, left_index=True, right_index=True)
+        dfPerdas.columns = dfPerdas.iloc[0]
+        dfPerdas = dfPerdas[1:]
+        dfPerdas = dfPerdas.rename(columns={diametro: "quantidade"})
+
+        diametro = float(diametro)
+
+        dfPerdas = dfPerdas[[diametro, "quantidade"]]
+        dfPerdas["quantidade"] = dfPerdas["quantidade"].astype("float")
+        pd.to_numeric(dfPerdas[diametro], downcast="float")
+
+        dfPerdas["Perda de carga"] = dfPerdas["quantidade"] * dfPerdas[diametro]
+        self.perda_carga = dfPerdas["Perda de carga"].sum()
+
+        return self.perda_carga
+
     def calculaHm(self, index):
 
         """
@@ -109,7 +126,7 @@ class CurvaSistema:
         return (
             self.alturaFinal
             - self.alturaInicial
-            + (fatorDeAtrito * self.Lv * V**2) / (self.diametroCano * 2 * g)
+            + (fatorDeAtrito * self.perda_carga * V**2) / (self.diametroCano * 2 * g)
         )
 
     def hmSistema(self):
@@ -153,10 +170,34 @@ class CurvaSistema:
         return dfNPSHdSistema
 
 
-curva1 = CurvaSistema(40, 2, 28, 0.0507, 46.8, "Aço carbono novo")
+"""dic = {
+    "temperatura": "30",
+    "diametro": "13",
+    "material": "chumbo",
+    "entradaNormal": "1",
+    "entradaDeBorda": "0",
+    "saidaCanalizacao": "0",
+    "curva90RaioLongo": "1",
+    "curva90RaioMedio": "1",
+    "curva90RaioCurto": "1",
+    "curva45": "1",
+    "curva90rd1": "2",
+    "registroGavetaAberto": "2",
+    "registroGloboAberto": "1",
+    "registroAnguloAberto": "2",
+    "TePassagemDireta": "3",
+    "TeSaidaLado": "1",
+    "TeSaidaBilateral": "1",
+    "valculaPeCrivo": "1",
+    "valvulaRetencaoLeve": "1",
+    "valvulaRetencaoPesado": "1",
+}
+
+curva1 = CurvaSistema(40, 2, 28, 0.0507, "Aço carbono novo")
 curva1.setRugosidade("Rugosidade Absoluta")
 curva1.setDensidade()
 curva1.setViscosidade()
-a = curva1.hmSistema()
+curva1.calculaPerda(dic)
+curva = curva1.hmSistema()
 
-print(a)
+print(curva)"""
