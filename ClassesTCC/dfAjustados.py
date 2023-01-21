@@ -1,9 +1,6 @@
-import sys
 from enum import Enum
 
-import numpy
 import pandas as pd
-
 from curvas.CurvaBomba import GetCurvaBomba
 from dfAjustados.constants import (
     lista_caminho_hm,
@@ -43,28 +40,18 @@ class AjustaDados:
         self.data_type = data_type.value
 
     def get_lista_setada(self):
-        numpy.set_printoptions(threshold=sys.maxsize)
-
-        # guarda os nomes dos arquivos que estão na pasta
-        curvas = []
-        for i in range(0, len(self.lista_nomes)):
-            # vai criar uma lista de objetos (bombas)
-            #  da classe (GetCurvaBomba(arquivo, grau))
-            curvas.append(GetCurvaBomba(self.lista_nomes[i], 3))
-
-        bombas = []
-        for i, nome in zip(curvas, self.lista_nomes_ajustados):
-            bomba = GetCurvaBomba.ajustarDadosBomba(i)
+        for i, nome in zip(self.lista_nomes, self.lista_nomes_ajustados):
+            curva = GetCurvaBomba(i, 3)
+            bomba = curva.ajustar_dados_bomba()
             bomba = pd.DataFrame(bomba)
             bomba = bomba.T
             bomba.columns = ["R_sq", self.data_type, "Q"]
-            del bomba["R_sq"]
+            bomba = bomba.drop("R_sq", axis=1)
             values_list = bomba.iloc[0][self.data_type]
             Q = bomba.iloc[0]["Q"]
             bomba = pd.DataFrame(
                 list(zip(Q, values_list)), columns=["Q", self.data_type]
             )
-            bombas.append(bomba)
             bomba.to_csv(nome, index=False)
 
 

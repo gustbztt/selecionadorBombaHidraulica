@@ -5,7 +5,7 @@ import pandas as pd
 
 # from .constants import Q, V, rho, mi, g, gamma
 step = 0.00001
-Q = np.arange(step, 0.0083, step)
+Q = np.arange(step, 0.1, step)
 V = np.zeros(len(Q))
 g = 9.81
 
@@ -20,63 +20,75 @@ class Planilhas:
         self.carrega_planilhas()
 
     def carrega_planilhas(self):
-
         """
         as planilhas desejadas são armazenadas nesta função
         """
 
-        dfRugosidade = pd.read_excel(
+        df_rugosidade = pd.read_excel(
             "C:\\Users\\Avell 1513\\Desktop\\TCC I\\TabelaRugosidade.xlsx",
             sheet_name="Planilha1",
         )
 
-        self.dfRugosidade = dfRugosidade.set_index("Material")
+        self.df_rugosidade = df_rugosidade.set_index("Material")
 
 
 class CurvaSistema:
 
     """
-    temperaturaAgua: int
-    alturaInicial: float
-    alturaFinal: float
-    diametroCano: int
+    temperatura_agua: int
+    altura_inicial: float
+    altura_final: float
+    diametro_cano: int
     material: str
 
     armazena os dados necessários para o cálculo da curva do sistema
     """
 
     def __init__(
-        self, temperaturaAgua, alturaInicial, alturaFinal, diametroCano, material
+        self,
+        temperatura_agua,
+        altura_inicial,
+        altura_final,
+        diametro_cano,
+        material,
+        comprimento_total,
     ):
-        self.temperaturaAgua = temperaturaAgua
-        self.alturaInicial = alturaInicial
-        self.alturaFinal = alturaFinal
-        self.diametroCano = diametroCano
+        self.temperatura_agua = temperatura_agua
+        self.altura_inicial = altura_inicial
+        self.altura_final = altura_final
+        self.diametro_cano = diametro_cano
         self.material = material
+        self.comprimento_total = comprimento_total
         self.planilhas = Planilhas()
 
-    def setRugosidade(self, nivelConservadorismo):
+    def run(self, rugosidade, dic):
+        self.set_rugosidade(rugosidade)
+        self.set_densidade()
+        self.set_viscosidade()
+        self.calcula_perda(dic)
+        return (self.hmSistema(), self.NPSHd())
 
+    def set_rugosidade(self, nivel_conservadorismo):
         """
         define a rugosidade do sistema a partir da planilha salva em Planilhas()
         """
-        self.rugosidade = self.planilhas.dfRugosidade.loc[
-            self.material, nivelConservadorismo
+        self.rugosidade = self.planilhas.df_rugosidade.loc[
+            self.material, nivel_conservadorismo
         ]
 
-    def setViscosidade(self):
+    def set_viscosidade(self):
 
-        z = 273.15 / (self.temperaturaAgua + 273.15)
+        z = 273.15 / (self.temperatura_agua + 273.15)
         mi_zero = 0.001788
         x = -1.704 - (5.306 * z) + (7.003 * z**2) + math.log(mi_zero)
 
         self.mi = math.exp(x)
 
-    def setDensidade(self):
+    def set_densidade(self):
 
-        self.rho = 1000 - 0.0178 * (self.temperaturaAgua - 4) ** 1.7
+        self.rho = 1000 - 0.0178 * (self.temperatura_agua - 4) ** 1.7
 
-    def calculaPerda(self, dic):
+    def calcula_perda(self, dic):
         tabPerdas = pd.read_excel(
             "C:/Users/Avell 1513/Desktop/TCC I/TabelaPerdaDeCarga.xlsx"
         )
@@ -85,48 +97,50 @@ class CurvaSistema:
         df = df.T
         df = df.rename(columns={0: "quantidade"})
 
-        dfPerdas = pd.DataFrame(tabPerdas)
-        dfPerdas = dfPerdas.T
+        df_perdas = pd.DataFrame(tabPerdas)
+        df_perdas = df_perdas.T
 
         diametro = dic.get("diametro")
 
-        dfPerdas = dfPerdas.merge(df, left_index=True, right_index=True)
-        dfPerdas.columns = dfPerdas.iloc[0]
-        dfPerdas = dfPerdas[1:]
-        dfPerdas = dfPerdas.rename(columns={diametro: "quantidade"})
+        df_perdas = df_perdas.merge(df, left_index=True, right_index=True)
+        df_perdas.columns = df_perdas.iloc[0]
+        df_perdas = df_perdas[1:]
+        df_perdas = df_perdas.rename(columns={diametro: "quantidade"})
 
         diametro = float(diametro)
 
-        dfPerdas = dfPerdas[[diametro, "quantidade"]]
-        dfPerdas["quantidade"] = dfPerdas["quantidade"].astype("float")
-        pd.to_numeric(dfPerdas[diametro], downcast="float")
+        df_perdas = df_perdas[[diametro, "quantidade"]]
+        df_perdas["quantidade"] = df_perdas["quantidade"].astype("float")
+        pd.to_numeric(df_perdas[diametro], downcast="float")
 
-        dfPerdas["Perda de carga"] = dfPerdas["quantidade"] * dfPerdas[diametro]
-        self.perda_carga = dfPerdas["Perda de carga"].sum()
+        df_perdas["Perda de carga"] = df_perdas["quantidade"] * \
+            df_perdas[diametro]
+        self.perda_carga = df_perdas["Perda de carga"].sum(
+        ) + self.comprimento_total
 
         return self.perda_carga
 
-    def calculaHm(self, index):
-
+    def calcula_hm(self, index):
         """
         retorna um valor único de Hm para uma determinada vazão
         """
-        V = 4 * Q[index] / (math.pi * self.diametroCano**2)
-        reynolds = self.rho * V * self.diametroCano / self.mi
-        fatorDeAtrito = (
+        V = 4 * Q[index] / (math.pi * self.diametro_cano**2)
+        reynolds = self.rho * V * self.diametro_cano / self.mi
+        fator_de_atrito = (
             1
             / (
                 -1.8
                 * math.log(
                     (6.9 / reynolds)
-                    + ((self.rugosidade / self.diametroCano) / 3.7) ** 1.11
+                    + ((self.rugosidade / self.diametro_cano) / 3.7) ** 1.11
                 )
             )
         ) ** 2
         return (
-            self.alturaFinal
-            - self.alturaInicial
-            + (fatorDeAtrito * self.perda_carga * V**2) / (self.diametroCano * 2 * g)
+            self.altura_final
+            - self.altura_inicial
+            + (fator_de_atrito * self.perda_carga * V**2)
+            / (self.diametro_cano * 2 * g)
         )
 
     def hmSistema(self):
@@ -139,18 +153,17 @@ class CurvaSistema:
         listaHm = []
 
         for i in range(len(Q)):
-            hm = self.calculaHm(i)
+            hm = self.calcula_hm(i)
             listaHm.append(hm)
 
-        curvaSistema = {"Q": Q, "Hm": listaHm}
-        dfCurvaSistema = pd.DataFrame(curvaSistema)
+        curva_sistema = {"Q": Q, "Hm": listaHm}
+        df_curva_sistema = pd.DataFrame(curva_sistema)
 
-        return dfCurvaSistema
+        return df_curva_sistema
 
     def NPSHd(
         self,
     ):
-
         """calcula NPSHd para diversas vazões;
         para alterar o vator vazão, é necessário alterar
         "Q" no início do código.
@@ -158,13 +171,14 @@ class CurvaSistema:
         """
         # npshd = (p1-pv)/gamma + Hs - Hp12
         self.gamma = self.rho * g
-        P1 = (10330 - self.alturaInicial) * g / 0.9
+        P1 = (10330 - self.altura_inicial) * g / 0.9
         pv = 2340
-        listaNPSHd = []
+        lista_NPSHd = []
         for i in range(len(Q)):
-            NPSHd = (P1 - pv) / self.gamma - self.calculaHm(i) + self.alturaFinal
-            listaNPSHd.append(NPSHd)
-        NPSHdSistema = {"Q": Q, "NPSHd": listaNPSHd}
-        dfNPSHdSistema = pd.DataFrame(NPSHdSistema)
+            NPSHd = (P1 - pv) / self.gamma - \
+                self.calcula_hm(i) + self.altura_final
+            lista_NPSHd.append(NPSHd)
+        NPSHd_sistema = {"Q": Q, "NPSHd": lista_NPSHd}
+        df_NPSHd_sistema = pd.DataFrame(NPSHd_sistema)
 
-        return dfNPSHdSistema
+        return df_NPSHd_sistema

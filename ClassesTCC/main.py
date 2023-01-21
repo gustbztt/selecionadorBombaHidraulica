@@ -1,13 +1,13 @@
 import copy
 
-from flask import Flask, flash, redirect, render_template, request, session, url_for
-
 from curvas.CurvaSistema import CurvaSistema
 from dfAjustados.constants import df_hm, df_NPSH, df_potencia
+from flask import Flask, flash, redirect, render_template, request, session, url_for
 from interseccao.Interseccao import GetInterseccoes
+from pretty_html_table import build_table
 
 app = Flask(__name__)
-app.secret_key = "guti"
+app.secret_key = "guti$R!@123AS!2dasfv."
 
 
 @app.route("/", methods=["POST", "GET"])
@@ -22,43 +22,35 @@ def index():
     ],
 )
 def felipe():
+    def get_float(key, default=0.0):
+        value = request.form.get(key)
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return default
 
-    temperatura = request.form.get("temperatura")
-    temperatura = float(temperatura)
-
-    diametro1 = request.form.get("diametro")
-    diametro = copy.deepcopy(diametro1)
-    diametro = float(diametro)
-    diametro_funcao = diametro / 1000
-
+    temperatura = get_float("temperatura")
+    diametro = get_float("diametro") / 1000
+    l_succao = get_float("perdaSuccao")
+    l_recalque = get_float("perdaRecalque")
+    comprimento_total = get_float("comprimentoTotal")
     material = request.form.get("material")
-
-    lSuccao = request.form.get("perdaSuccao")
-    lSuccao = float(lSuccao)
-
-    lRecalque = request.form.get("perdaRecalque")
-    lRecalque = float(lRecalque)
 
     dic = request.form.to_dict()
 
-    curva1 = CurvaSistema(temperatura, lSuccao, lRecalque, diametro_funcao, material)
-    curva1.setRugosidade("Rugosidade Absoluta")
-    curva1.setDensidade()
-    curva1.setViscosidade()
-    curva1.calculaPerda(dic)
-    df_sistema = curva1.hmSistema()
-    NPSHd = curva1.NPSHd()
+    curva1 = CurvaSistema(
+        temperatura, l_succao, l_recalque, diametro, material, comprimento_total
+    )
+    df_sistema, NPSHd = curva1.run("Rugosidade Absoluta", dic)
 
-    interseccoes = GetInterseccoes(df_sistema, NPSHd, df_hm, df_NPSH, df_potencia)
-    ponto_funcionamento = interseccoes.get_ponto_funcionamento()
-    potencia_efetiva = interseccoes.get_potencia_efetiva()
-    eficiencia = interseccoes.get_eficiencia()
-    vazao_maxima = interseccoes.get_vazao_maxima()
+    interseccoes = GetInterseccoes(
+        df_sistema, NPSHd, df_hm, df_NPSH, df_potencia)
+    output = interseccoes.run()
+    html_table_blue_light = build_table(
+        output, "blue_light", text_align="center", width="auto"
+    )
 
-    ponto_funcionamento = ponto_funcionamento.to_html()
-    eficiencia = eficiencia.to_html()
-
-    return f"{eficiencia}"
+    return f"{html_table_blue_light}"
 
 
 app.run(debug=True)

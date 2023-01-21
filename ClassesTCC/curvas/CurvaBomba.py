@@ -17,7 +17,7 @@ class GetCurvaBomba:
         self.arquivo = arquivo
         self.grau = grau
 
-    def ajustarDadosBomba(self):
+    def ajustar_dados_bomba(self):
 
         """
         essa função trata os dados armazenados na classe GetCurvaBomba,
