@@ -68,24 +68,23 @@ dfHm = pd.read_sql_query(
 dfNPSH = pd.read_sql_query("SELECT * from bombasNPSH", con)
 dfPotencia = pd.read_sql_query("SELECT * from bombasPotencia", con)
 
+df_hm = dfHm.drop(0, axis=0)
+df_hm.columns = ["nome_bomba", "Q", "Hm"]
 
-def skip_header(dataframe):
-    dataframe = dataframe.iloc[1:, :]
-    return dataframe
+df_NPSH = dfNPSH.drop(0, axis=0)
+df_NPSH.columns = ["nome_bomba", "Q", "NPSH"]
+
+df_potencia = dfPotencia.drop(0, axis=0)
+df_potencia.columns = ["nome_bomba", "Q", "Potencia"]
 
 
 def to_numeric(dataframe, column):
     # transforma a coluna com virgula de separador decimal em float
-    dataframe[column] = (
-        dataframe[column].astype(str).str.replace(",", ".").astype(float)
-    )
-    df = dataframe
-    return df
+    dataframe.loc[:, column] = (dataframe[column].astype(
+        str).str.replace(",", ".").astype(float))
 
+    return dataframe
 
-df_hm = skip_header(dfHm)
-df_NPSH = skip_header(dfNPSH)
-df_potencia = skip_header(dfPotencia)
 
 to_numeric(df_hm, "Q")
 to_numeric(df_hm, "Hm")
@@ -93,3 +92,11 @@ to_numeric(df_NPSH, "Q")
 to_numeric(df_NPSH, "NPSH")
 to_numeric(df_potencia, "Q")
 to_numeric(df_potencia, "Potencia")
+
+
+# Load the excel file and save it to a variable
+tabPerdas = pd.read_excel(
+    "C:/Users/Avell 1513/Desktop/TCC I/TabelaPerdaDeCarga.xlsx")
+
+# Save the variable to a constant
+TAB_PERDAS = tabPerdas

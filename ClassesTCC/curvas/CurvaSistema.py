@@ -1,5 +1,5 @@
 import math
-
+from dfAjustados.constants import TAB_PERDAS
 import numpy as np
 import pandas as pd
 
@@ -89,15 +89,11 @@ class CurvaSistema:
         self.rho = 1000 - 0.0178 * (self.temperatura_agua - 4) ** 1.7
 
     def calcula_perda(self, dic):
-        tabPerdas = pd.read_excel(
-            "C:/Users/Avell 1513/Desktop/TCC I/TabelaPerdaDeCarga.xlsx"
-        )
-
         df = pd.DataFrame(dic, index=[0])
         df = df.T
         df = df.rename(columns={0: "quantidade"})
 
-        df_perdas = pd.DataFrame(tabPerdas)
+        df_perdas = pd.DataFrame(TAB_PERDAS)
         df_perdas = df_perdas.T
 
         diametro = dic.get("diametro")
@@ -136,12 +132,32 @@ class CurvaSistema:
                 )
             )
         ) ** 2
+
         return (
             self.altura_final
             - self.altura_inicial
             + (fator_de_atrito * self.perda_carga * V**2)
             / (self.diametro_cano * 2 * g)
         )
+
+    def calcula_NPSH(self, index):
+        """
+        retorna um valor único de Hm para uma determinada vazão
+        """
+        V = 4 * Q[index] / (math.pi * self.diametro_cano**2)
+        reynolds = self.rho * V * self.diametro_cano / self.mi
+        fator_de_atrito = (
+            1
+            / (
+                -1.8
+                * math.log(
+                    (6.9 / reynolds)
+                    + ((self.rugosidade / self.diametro_cano) / 3.7) ** 1.11
+                )
+            )
+        ) ** 2
+
+        return (fator_de_atrito * self.perda_carga * V**2) / (self.diametro_cano * 2 * g)
 
     def hmSistema(self):
         """
@@ -176,9 +192,9 @@ class CurvaSistema:
         lista_NPSHd = []
         for i in range(len(Q)):
             NPSHd = (P1 - pv) / self.gamma - \
-                self.calcula_hm(i) + self.altura_final
+                self.calcula_NPSH(i) + self.altura_final
             lista_NPSHd.append(NPSHd)
         NPSHd_sistema = {"Q": Q, "NPSHd": lista_NPSHd}
-        df_NPSHd_sistema = pd.DataFrame(NPSHd_sistema)
+        df_NPSH_disponivel = pd.DataFrame(NPSHd_sistema)
 
-        return df_NPSHd_sistema
+        return df_NPSH_disponivel

@@ -21,7 +21,7 @@ def transform_file(
     with open(input_file, newline="") as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            row["Title"] = transform_func(row["Title"])
+            row["nome_bomba"] = transform_func(row["nome_bomba"])
             data.append(row)
 
     with open(output_file, mode="w") as csvfile:
@@ -35,7 +35,8 @@ def process_folder(folder_name: str, fieldnames: List[str]):
     base_folder_path = "C:\\Users\\Avell 1513\\Desktop\\TCC I"
     folder_path = os.path.join(base_folder_path, folder_name)
 
-    new_folder_path = os.path.join(base_folder_path, f"concatenated_{folder_name}")
+    new_folder_path = os.path.join(
+        base_folder_path, f"concatenated_{folder_name}")
     if not os.path.exists(new_folder_path):
         os.makedirs(new_folder_path)
 
@@ -44,7 +45,7 @@ def process_folder(folder_name: str, fieldnames: List[str]):
         if filename.endswith(".csv"):
             filepath = os.path.join(folder_path, filename)
             df = pd.read_csv(filepath)
-            df.insert(0, "Title", filename, True)
+            df.insert(0, "nome_bomba", filename, True)
             dfs.append(df)
 
     df_final = pd.concat(dfs, ignore_index=True)
@@ -55,9 +56,10 @@ def process_folder(folder_name: str, fieldnames: List[str]):
     df_final.to_csv(concatenated_filepath, index=False)
 
     output_file = os.path.join(new_folder_path, "transformed.csv")
-    transform_file(concatenated_filepath, output_file, transform_string, fieldnames)
+    transform_file(concatenated_filepath, output_file,
+                   transform_string, fieldnames)
 
 
-process_folder("hmsAjustados", ["Title", "Q", "Hm"])
-process_folder("NPSHsAjustados", ["Title", "Q", "NPSH"])
-process_folder("PotenciasAjustados", ["Title", "Q", "Potencia"])
+process_folder("hmsAjustados", ["nome_bomba", "Q", "Hm"])
+process_folder("NPSHsAjustados", ["nome_bomba", "Q", "NPSH"])
+process_folder("PotenciasAjustados", ["nome_bomba", "Q", "Potencia"])

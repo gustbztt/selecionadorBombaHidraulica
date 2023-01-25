@@ -4,33 +4,62 @@ import pandas as pd
 from curvas.CurvaSistema import CurvaSistema
 
 
-dic = {'diametro': '100',
-       'material': 'chumbo',
-       'temperatura': '25',
-       'perdaSuccao': '10',
-       'perdaRecalque': '100',
-       'comprimentoTotal': '125',
-       'entradaNormal': '0',
-       'entradaDeBorda': '1',
-       'curva90RaioLongo': '0',
-       'curva90RaioMedio': '0',
-       'curva90RaioCurto': '0',
-       'curva45': '2',
-       'curva90rd1': '0',
-       'registroGavetaAberto': '0',
-       'registroGloboAberto': '2',
-       'registroAnguloAberto': '0',
-       'TePassagemDireta': '0',
-       'TeSaidaLado': '0',
-       'TeSaidaBilateral': '0',
-       'valvulaPeCrivo': '1',
-       'valvulaRetencaoLeve': '0',
-       'valvulaRetencaoPesado': '0',
-       'saidaCanalizacao': '1',
-       'curva_90_rd_1_5': '0'}
+dict_discharge = {'diametro': '100',
+                  'material': 'chumbo',
+                  'temperatura': '25',
+                  'alturaBomba': '10',
+                  'alturaRecalque': '85',
+                  'comprimentoRecalque': '120',
+                  'entradaNormal': '0',
+                  'entradaDeBorda': '0',
+                  'curva90RaioLongo': '0',
+                  'curva90RaioMedio': '3',
+                  'curva90RaioCurto': '0',
+                  'curva45': '2',
+                  'curva90rd1': '0',
+                  'registroGavetaAberto': '0',
+                  'registroGloboAberto': '2',
+                  'registroAnguloAberto': '0',
+                  'TePassagemDireta': '0',
+                  'TeSaidaLado': '0',
+                  'TeSaidaBilateral': '0',
+                  'valvulaPeCrivo': '0',
+                  'valvulaRetencaoLeve': '0',
+                  'valvulaRetencaoPesado': '0',
+                  'saidaCanalizacao': '0',
+                  'curva_90_rd_1_5': '0'}
+
+dict_suction = {'diametro': '150',
+                'material': 'chumbo',
+                'temperatura': '25',
+                'alturaReservatorio': '0',
+                'alturaBomba': '10',
+                'comprimentoSuccao': '50',
+                'entradaNormal': '1',
+                'entradaDeBorda': '0',
+                'curva90RaioLongo': '0',
+                'curva90RaioMedio': '0',
+                'curva90RaioCurto': '0',
+                'curva45': '1',
+                'curva90rd1': '0',
+                'registroGavetaAberto': '0',
+                'registroGloboAberto': '2',
+                'registroAnguloAberto': '0',
+                'TePassagemDireta': '0',
+                'TeSaidaLado': '0',
+                'TeSaidaBilateral': '0',
+                'valvulaPeCrivo': '1',
+                'valvulaRetencaoLeve': '0',
+                'valvulaRetencaoPesado': '0',
+                'saidaCanalizacao': '0',
+                'curva_90_rd_1_5': '0'}
 
 
-def get_float(key, default=0.0):
+dict_diametro_economico = {'funcionamentoDiario': '20',
+                           'vazaoDesejada': '250'}
+
+
+def get_float(dic, key, default=0.0):
     value = dic[key]
     try:
         return float(value)
@@ -38,19 +67,44 @@ def get_float(key, default=0.0):
         return default
 
 
-temperatura = get_float("temperatura")
-diametro = get_float("diametro") / 1000
-l_succao = get_float("perdaSuccao")
-l_recalque = get_float("perdaRecalque")
-comprimento_total = get_float("comprimentoTotal")
+# parâmetros do sistema
 material = "chumbo"
+temperatura = get_float(dict_discharge, "temperatura")
+altura_bomba = get_float(dict_discharge, "alturaBomba")
 
-curva1 = CurvaSistema(
-    temperatura, l_succao, l_recalque, diametro, material, comprimento_total
+# parâmetros da sucção
+diametro_succao = get_float(dict_suction, "diametro") / 1000
+altura_reservatorio = get_float(dict_suction, "alturaReservatorio")
+comprimento_succao = get_float(dict_suction, "comprimentoSuccao")
+
+# parâmetros do recalque
+diametro_recalque = get_float(dict_discharge, "diametro") / 1000
+altura_recalque = get_float(dict_discharge, "alturaRecalque")
+comprimento_recalque = get_float(dict_discharge, "comprimentoRecalque")
+
+
+curva_recalque = CurvaSistema(
+    temperatura, altura_bomba, altura_recalque, diametro_recalque, material, comprimento_recalque
 )
 
-df_system, NPSHd = curva1.run("Rugosidade Absoluta", dic)
+curva_succao = CurvaSistema(
+    temperatura, altura_reservatorio, altura_bomba, diametro_succao, material, comprimento_succao
+)
+
+# gets the system curve for the suction pipe and the available NPSH
+df_succao, NPSHd = curva_succao.run("Rugosidade Absoluta", dict_suction)
+
+# get the system curve for discharge pipe and a irrelevant curve
+df_recalque, not_NPSHd = curva_recalque.run(
+    "Rugosidade Absoluta", dict_discharge)
+
+# defines the curves of the pumps as df_pump
 df_pump = df_hm
+
+# gets the overall system curve
+curva_sistema = pd.merge(df_succao, df_recalque, on="Q")
+curva_sistema["Hm"] = curva_sistema["Hm_x"] + curva_sistema["Hm_y"]
+curva_sistema = curva_sistema[["Q", "Hm"]]
 
 
 class CurveIntersection:
@@ -60,30 +114,33 @@ class CurveIntersection:
         self.df_npsh = df_npsh
         self.NPSHd = NPSHd
 
+    import numpy as np
+
     def find_intersection(self, Q, Hm_pump, Hm_system):
-        x_intersection = None
-        y_intersection = None
-        for i in range(len(Q) - 1):
-            x1, x2 = Q[i], Q[i+1]
-            y1_pump, y2_pump = Hm_pump[i], Hm_pump[i+1]
-            y1_system, y2_system = Hm_system[i], Hm_system[i+1]
-            den = (x2 - x1) * (y2_system - y1_system) - \
-                (x2 - x1) * (y2_pump - y1_pump)
-            if den == 0:
-                continue
-            # Use linear interpolation to estimate the intersection point
-            ua = ((x2 - x1) * (y1_pump - y1_system) -
-                  (y2_pump - y1_pump) * (x1 - x1)) / den
-            ub = ((x2 - x1) * (y2_system - y1_system) -
-                  (y2_pump - y1_pump) * (x2 - x1)) / den
+        x1, x2 = np.array(Q[:-1]), np.array(Q[1:])
+        y1_pump, y2_pump = np.array(Hm_pump[:-1]), np.array(Hm_pump[1:])
+        y1_system, y2_system = np.array(
+            Hm_system[:-1]), np.array(Hm_system[1:])
 
-            # Check if the intersection point is within the segment of both curves
-            if 0 <= ua <= 1 and 0 <= ub <= 1:
-                x_intersection = x1 + ua * (x2 - x1)
-                y_intersection = y1_pump + ua * (y2_pump - y1_pump)
-                break
+        den = (x2 - x1) * (y2_system - y1_system) - \
+            (x2 - x1) * (y2_pump - y1_pump)
+        mask = den != 0
+        x1, x2, y1_pump, y2_pump, y1_system, y2_system, den = x1[mask], x2[
+            mask], y1_pump[mask], y2_pump[mask], y1_system[mask], y2_system[mask], den[mask]
 
-        return x_intersection, y_intersection
+        ua = ((x2 - x1) * (y1_pump - y1_system) -
+              (y2_pump - y1_pump) * (x1 - x1)) / den
+        ub = ((x2 - x1) * (y2_system - y1_system) -
+              (y2_pump - y1_pump) * (x2 - x1)) / den
+
+        mask = (ua >= 0) & (ua <= 1) & (ub >= 0) & (ub <= 1)
+        if mask.any():
+            x_intersection = x1[mask] + ua[mask] * (x2[mask] - x1[mask])
+            y_intersection = y1_pump[mask] + \
+                ua[mask] * (y2_pump[mask] - y1_pump[mask])
+            return x_intersection[0], y_intersection[0]
+        else:
+            return None, None
 
     def find_intersections_all_curves_hm(self):
         self.df_pump = self.df_pump.sort_values('Q')
@@ -98,7 +155,9 @@ class CurveIntersection:
             if intersection[0] is not None:
                 intersection_points.append(
                     {'nome_bomba': name, 'Q_intersection': intersection[0], 'Hm_intersection': intersection[1]})
-        return intersection_points
+        self.df_intersection_hm = pd.DataFrame(intersection_points)
+
+        return self.df_intersection_hm
 
     def find_intersections_all_curves_NPSH(self):
         self.df_npsh = self.df_npsh.sort_values('Q')
@@ -113,14 +172,59 @@ class CurveIntersection:
             if intersection[0] is not None:
                 intersection_points.append(
                     {'nome_bomba': name, 'Q_intersection': intersection[0], 'NPSH_intersection': intersection[1]})
-        return intersection_points
+
+        self.df_intersection_npsh = pd.DataFrame(intersection_points)
+
+        return self.df_intersection_npsh
+
+    def merge_dataframes(self):
+        # Merge the dataframes on the 'nome_bomba' column
+        merged_df = pd.merge(self.df_intersection_hm,
+                             df_intersection_npsh, on='nome_bomba')
+
+        # Filter rows where Q_intersection_x (from df_hm) is lower than Q_intersection_y (from df_NPSH)
+        filtered_df = merged_df[merged_df['Q_intersection_x']
+                                < merged_df['Q_intersection_y']]
+
+        filtered_df = filtered_df.rename(columns={
+                                         'Q_intersection_x': 'Ponto_funcionamento', 'Q_intersection_y': 'Vazao_maxima'})
+
+        # Print the resulting dataframe
+        return filtered_df
 
 
 df_npsh = df_NPSH
 
-intersection = CurveIntersection(df_pump, df_system, df_npsh, NPSHd)
-intersection_points_hm = intersection.find_intersections_all_curves_hm()
-intersection_points_npsh = intersection.find_intersections_all_curves_NPSH()
+intersection = CurveIntersection(df_pump, curva_sistema, df_npsh, NPSHd)
+df_intersection_hm = intersection.find_intersections_all_curves_hm()
+df_intersection_npsh = intersection.find_intersections_all_curves_NPSH()
 
-print(intersection_points_hm)
-print(intersection_points_npsh)
+merged_df = intersection.merge_dataframes()
+print(merged_df)
+
+
+def get_diametro_economico(dict):
+    import bisect
+    # lista de diametros comerciais possíveis
+    diametros = [13, 19, 25, 32, 38, 50, 63, 75, 100, 125, 200, 250, 300]
+    # parâmetros para diâmetro ideal
+    vazao_desejada = get_float(dict_diametro_economico, "vazaoDesejada")
+    funcionamento_diario = get_float(
+        dict_diametro_economico, "funcionamentoDiario")
+
+    # get diametro economico em mm
+    diametro_ideal = (1.3*((funcionamento_diario/24)**0.25) *
+                      (vazao_desejada/60000)**0.5)*1000
+
+    i = bisect.bisect_left(diametros, diametro_ideal)
+    if i == 0:
+        return diametros[0], diametros[1]
+    if i == len(diametros):
+        return diametros[-2], diametros[-1]
+
+    diametro_succao = diametros[i-1]
+    diametro_recalque = diametros[i]
+    return diametro_succao, diametro_recalque
+
+
+'''def get_diametro_desejado(dict_diametro_ideal, dict_succao, dict_recalque):'''
