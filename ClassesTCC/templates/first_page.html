@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Frictional Loss Calculation</title>
+
+    <!-- Bootstrap core CSS -->
+
+
+    <link href="https://druckverlust.starpumpalliance.com/static/css/bootstrap.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
+
+    <link href="https://druckverlust.starpumpalliance.com/static/bower_components/jquery.steps/css/bootstrap.css"
+        rel="stylesheet">
+
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <script
+        src="https://druckverlust.starpumpalliance.com/static/bower_components/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="/en/frontend/jsi18n/"></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <nav id="language-picker">
+            <ul class="nav navbar-nav">
+
+                <li><a href="/en/frictional-loss/help">Help</a></li>
+
+
+            </ul>
+        </nav>
+    </nav>
+
+
+
+    <h2>Parâmetros</h2>
+
+
+
+
+    <div id="contemt">
+
+
+        <div id="calc-frictional-loss" action="{{url_for('felipe')}}" class="simple-box" method="post">
+            <input type='hidden' name='csrfmiddlewaretoken' value='ihyLZuKbb3iXyHLxsOGSlJ2Fniy6jk1j' />
+            <fieldset class="rlv-parameters">
+                <legend>Características do Sistema</legend>
+                    
+                <div class="row">
+                    <div class="col-sm-4">
+                        <span class="calc-unit">$[-]$</span>
+                        <div class="form-group"><label class="control-label" for="id_material">Material do encanamento
+                            </label><select class="form-control form-control" id="id_material" name="material"
+                                required="required">
+
+                                <option value="chumbo">Chumbo</option>
+                                <option value="latao">Latão</option>
+                                <option value="bronze">Bronze</option>
+                                <option value="cobre">Cobre</option>
+                                <option value="aluminio">Aluminio</option>
+                                <option value="PVC">PVC</option>
+                                <option value="acoInoxidavel">Aço Inoxidável</option>
+                                <option value="acoComercial">Aço comercial</option>
+                                <option value="acoCarbonoNovo">Aço Carbono Novo</option>
+                                <option value="acoCarbonoPoucoDesgastado">Aço Carbono (pouco desgastado)</option>
+                                <option value="acoCarbonoDesgastado">Aço Carbono (desgastado)</option>
+                                <option value="acoCarbonoBemDesgastado">Aço Carbono (bem desgastado)</option>
+                                <option value="acoFundidoNovo">Aço Fundido (novo)</option>
+                                <option value="acoFundidoDesgastado">Aço Fundido (desgastado)</option>
+                                <option value="acoFundidoEnferrujado">Aço Fundido (enferrujado)</option>
+                                <option value="acoGalvanizado">Aço Galvanizado</option>
+                                <option value="concreto">Concreto</option>
+                                <option value="concretoMarcado">Concreto (marcado)</option>
+
+                            </select>
+
+
+
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <span class="calc-unit">$[ºC]$</span>
+                        <div class="form-group"><label class="control-label" for="temperatura">Temperatura</label><input
+                                class="form-control form-control" id="temperatura" name="temperatura"
+                                required="required" title="$[\frac{kg}{m^3}]$" type="number" /><span class="help-block">
+
+
+                            </span></div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <span class="calc-unit">$[ºC]$</span>
+                        <div class="form-group"><label class="control-label" for="vazaoDesejada">Vazão desejada</label><input
+                                class="form-control form-control" id="vazaoDesejada" name="vazaoDesejada"
+                                required="required" title="$[\frac{kg}{m^3}]$" type="number" /><span class="help-block">
+
+
+                            </span></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <span class="calc-unit">$[ºC]$</span>
+                        <div class="form-group"><label class="control-label" for="tempoFuncionamento">Tempo de funcionamento (horas por dia)</label><input
+                                class="form-control form-control" id="tempoFuncionamento" name="tempoFuncionamento"
+                                required="required" title="$[\frac{kg}{m^3}]$" type="number" /><span class="help-block">
+
+
+                            </span></div>
+                    </div>
+                </div>
+                  
+
+
+            </fieldset>
+               
+
+            <hr />
+            <div class="row">
+                <div class="text-center">
+                    <button type="submit" class="btn btn-lg btn-primary">
+
+                        Calculate
+
+                    </button>
+                    <input type="button" id="reset" class="btn btn-lg btn-link text-capitalize" value="Reset">
+                </div>
+            </div>
+        </form>
+
+    </div>
+    <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+
+    <script src="https://druckverlust.starpumpalliance.com/static/bower_components/jquery/dist/jquery.min.js"
+        type="text/javascript"></script>
+    <script src="https://druckverlust.starpumpalliance.com/static/bower_components/bootstrap/dist/js/bootstrap.min.js"
+        type="text/javascript"></script>
+    <script src="https://druckverlust.starpumpalliance.com/static/js/reset.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/3.6.3/iframeResizer.contentWindow.min.js"
+        type="text/javascript"></script>
+
+</body>
+
+</html>
