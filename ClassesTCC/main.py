@@ -9,7 +9,6 @@ from pretty_html_table import build_table
 app = Flask(__name__)
 app.secret_key = "guti$R!@123AS!2dasfv."
 
-
 @app.route("/", methods=["POST", "GET"])
 def index():
     return render_template("index.html")

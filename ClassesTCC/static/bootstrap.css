@@ -2011,9 +2011,13 @@ pre code {
 }
 
 .row {
-    margin-left: -15px;
-    margin-right: -15px
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
 }
+
+
 
 .col-xs-1,
 .col-sm-1,
@@ -3296,6 +3300,12 @@ output {
     line-height: 1.42857143;
     color: #555
 }
+
+.form-container {
+    display: flex;
+    justify-content: center;
+}
+
 
 .form-control {
     display: block;

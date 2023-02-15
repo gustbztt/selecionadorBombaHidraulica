@@ -4,12 +4,12 @@ import pandas as pd
 from curvas.CurvaSistema import CurvaSistema
 import matplotlib.pyplot as plt
 
-dict_discharge = {'diametro': '32',
+dict_discharge = {'diametro': '200',
                   'material': 'chumbo',
                   'temperatura': '25',
                   'alturaBomba': '10',
-                  'alturaRecalque': '40',
-                  'comprimentoRecalque': '50',
+                  'alturaRecalque': '60',
+                  'comprimentoRecalque': '70',
                   'entradaNormal': '0',
                   'entradaDeBorda': '0',
                   'curva90RaioLongo': '0',
@@ -29,12 +29,12 @@ dict_discharge = {'diametro': '32',
                   'saidaCanalizacao': '0',
                   'curva_90_rd_1_5': '0'}
 
-dict_suction = {'diametro': '32',
+dict_suction = {'diametro': '125',
                 'material': 'chumbo',
                 'temperatura': '25',
                 'alturaReservatorio': '0',
                 'alturaBomba': '10',
-                'comprimentoSuccao': '20',
+                'comprimentoSuccao': '90',
                 'entradaNormal': '1',
                 'entradaDeBorda': '0',
                 'curva90RaioLongo': '0',
@@ -128,7 +128,7 @@ class CurveIntersection:
     def merge_dataframes(self):
         # Merge the dataframes on the 'nome_bomba' column
         merged_df = pd.merge(self.df_intersection_hm,
-                             df_intersection_npsh, on='nome_bomba')
+                             self.df_intersection_npsh, on='nome_bomba')
 
         # Filter rows where Q_intersection_x (from df_hm) is lower than Q_intersection_y (from df_NPSH)
         filtered_df = merged_df[merged_df['Q_intersection_hm']
@@ -162,7 +162,7 @@ class CurveIntersection:
         return treated_df
 
 
-def get_float(dic, key, default=0.0):
+'''def get_float(dic, key, default=0.0):
     value = dic[key]
     try:
         return float(value)
@@ -230,4 +230,4 @@ plt.title("Curvas genéricas")
 plt.xlabel("Q (l/min)")
 plt.ylabel("Hm (m.c.a.)")
 plt.legend(['Curva do sistema', 'Curva da bomba'])
-plt.show()
+plt.show()'''

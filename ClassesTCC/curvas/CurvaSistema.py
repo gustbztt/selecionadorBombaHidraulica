@@ -61,17 +61,23 @@ class CurvaSistema:
         self.comprimento_total = comprimento_total
         self.planilhas = Planilhas()
 
-    def run(self, rugosidade, dic):
+    def run_succao(self, rugosidade, dict_succao):
         self.set_rugosidade(rugosidade)
         self.set_densidade()
         self.set_viscosidade()
-        self.calcula_perda(dic)
-        return (self.hmSistema(), self.NPSHd())
+        self.calcula_perda_succao(dict_succao)
+        return self.NPSHd()
+
+    def run_recalque(self, rugosidade, dict_recalque, dict_succao):
+        self.set_rugosidade(rugosidade)
+        self.set_densidade()
+        self.set_viscosidade()
+        self.calcula_perda_succao(dict_succao)
+        self.calcula_perda_recalque(dict_recalque)
+        return self.hm_sistema()
 
     def set_rugosidade(self, nivel_conservadorismo):
-        """
-        define a rugosidade do sistema a partir da planilha salva em Planilhas()
-        """
+        # define a rugosidade do sistema a partir da planilha salva em Planilhas()
         self.rugosidade = self.planilhas.df_rugosidade.loc[
             self.material, nivel_conservadorismo
         ]
@@ -88,38 +94,63 @@ class CurvaSistema:
 
         self.rho = 1000 - 0.0178 * (self.temperatura_agua - 4) ** 1.7
 
-    def calcula_perda(self, dic):
+    def calcula_perda_succao(self, dic):
         df = pd.DataFrame(dic, index=[0])
         df = df.T
         df = df.rename(columns={0: "quantidade"})
 
         df_perdas = pd.DataFrame(TAB_PERDAS)
         df_perdas = df_perdas.T
-
-        diametro = dic.get("diametro")
+        diametro = dic.get("diametroSuccao")
 
         df_perdas = df_perdas.merge(df, left_index=True, right_index=True)
-        df_perdas.columns = df_perdas.iloc[0]
-        df_perdas = df_perdas[1:]
-        df_perdas = df_perdas.rename(columns={diametro: "quantidade"})
 
+        # assuming your dataframe is named df
+        new_column_names = {i: j for i, j in enumerate(
+            [13, 19, 25, 32, 38, 50, 63, 75, 100, 125, 200, 250, 300])}
+        df_perdas = df_perdas.rename(columns=new_column_names)
         diametro = float(diametro)
-
         df_perdas = df_perdas[[diametro, "quantidade"]]
         df_perdas["quantidade"] = df_perdas["quantidade"].astype("float")
         pd.to_numeric(df_perdas[diametro], downcast="float")
 
         df_perdas["Perda de carga"] = df_perdas["quantidade"] * \
             df_perdas[diametro]
-        self.perda_carga = df_perdas["Perda de carga"].sum(
-        ) + self.comprimento_total
+        self.perda_carga_succao = df_perdas["Perda de carga"].sum()
 
-        return self.perda_carga
+        return self.perda_carga_succao
+
+    def calcula_perda_recalque(self, dic):
+        df = pd.DataFrame(dic, index=[0])
+        df = df.T
+        df = df.rename(columns={0: "quantidade"})
+
+        df_perdas = pd.DataFrame(TAB_PERDAS)
+        df_perdas = df_perdas.T
+        diametro = dic.get("diametroRecalque")
+
+        df_perdas = df_perdas.merge(df, left_index=True, right_index=True)
+
+        # assuming your dataframe is named df
+        new_column_names = {i: j for i, j in enumerate(
+            [13, 19, 25, 32, 38, 50, 63, 75, 100, 125, 200, 250, 300])}
+        df_perdas = df_perdas.rename(columns=new_column_names)
+        diametro = float(diametro)
+        df_perdas = df_perdas[[diametro, "quantidade"]]
+        df_perdas["quantidade"] = df_perdas["quantidade"].astype("float")
+        pd.to_numeric(df_perdas[diametro], downcast="float")
+
+        df_perdas["Perda de carga"] = df_perdas["quantidade"] * \
+            df_perdas[diametro]
+        self.perda_carga_recalque = df_perdas["Perda de carga"].sum()
+
+        return self.perda_carga_recalque
 
     def calcula_hm(self, index):
         """
         retorna um valor único de Hm para uma determinada vazão
         """
+        self.perda_carga = self.perda_carga_succao + self.perda_carga_recalque
         V = 4 * Q[index] / (math.pi * self.diametro_cano**2)
         reynolds = self.rho * V * self.diametro_cano / self.mi
         fator_de_atrito = (
@@ -157,9 +188,9 @@ class CurvaSistema:
             )
         ) ** 2
 
-        return (fator_de_atrito * self.perda_carga * V**2) / (self.diametro_cano * 2 * g)
+        return (fator_de_atrito * self.perda_carga_succao * V**2) / (self.diametro_cano * 2 * g)
 
-    def hmSistema(self):
+    def hm_sistema(self):
         """
         calcula a função de Hm para diversas vazões;
         para alterar o vetor vazão, é necessário alterar

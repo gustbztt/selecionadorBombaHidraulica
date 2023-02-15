@@ -39,7 +39,7 @@
         <nav id="language-picker">
             <ul class="nav navbar-nav">
 
-                <li><a href="/en/frictional-loss/help">Help</a></li>
+                <li><a href="/en/frictional-loss/help">Início</a></li>
 
 
             </ul>
@@ -56,17 +56,20 @@
     <div id="contemt">
 
 
-        <form id="calc-frictional-loss" action="{{url_for('felipe')}}" class="simple-box" method="post">
+        <form id="calc-frictional-loss" action="{{url_for('third')}}" class="simple-box" method="post">
             <input type='hidden' name='csrfmiddlewaretoken' value='ihyLZuKbb3iXyHLxsOGSlJ2Fniy6jk1j' />
             <fieldset class="rlv-parameters">
                 <legend>Características do Sistema</legend>
                 <div class="row">
                     <div class="col-sm-4">
                         <span class="calc-unit">$[mm]$</span>
-                        <div class="form-group"><label class="control-label" for="diametro">Diâmetro do encanamento
-                                $d_n$</label><select class="form-control form-control" id="diametro" name="diametro"
-                                required="required">
+                        <div class="form-group"><label class="control-label" for="diametroSuccao">Diâmetro de sucção
+                                $d_n$</label><select class="form-control form-control" id="diametroSuccao"
+                                name="diametroSuccao" required="required">
 
+                                <option selected="selected">
+                                    {{diametro_succao}}
+                                </option>
                                 <option value="25">25</option>
                                 <option value="32">32</option>
                                 <option value="38">38</option>
@@ -88,50 +91,8 @@
                         </div>
                     </div>
 
-                    <div class="col-sm-4">
-                        <span class="calc-unit">$[-]$</span>
-                        <div class="form-group"><label class="control-label" for="id_material">Material do encanamento
-                            </label><select class="form-control form-control" id="id_material" name="material"
-                                required="required">
-
-                                <option value="chumbo">Chumbo</option>
-                                <option value="latao">Latão</option>
-                                <option value="bronze">Bronze</option>
-                                <option value="cobre">Cobre</option>
-                                <option value="aluminio">Aluminio</option>
-                                <option value="PVC">PVC</option>
-                                <option value="acoInoxidavel">Aço Inoxidável</option>
-                                <option value="acoComercial">Aço comercial</option>
-                                <option value="acoCarbonoNovo">Aço Carbono Novo</option>
-                                <option value="acoCarbonoPoucoDesgastado">Aço Carbono (pouco desgastado)</option>
-                                <option value="acoCarbonoDesgastado">Aço Carbono (desgastado)</option>
-                                <option value="acoCarbonoBemDesgastado">Aço Carbono (bem desgastado)</option>
-                                <option value="acoFundidoNovo">Aço Fundido (novo)</option>
-                                <option value="acoFundidoDesgastado">Aço Fundido (desgastado)</option>
-                                <option value="acoFundidoEnferrujado">Aço Fundido (enferrujado)</option>
-                                <option value="acoGalvanizado">Aço Galvanizado</option>
-                                <option value="concreto">Concreto</option>
-                                <option value="concretoMarcado">Concreto (marcado)</option>
-
-                            </select>
 
 
-
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-4">
-                        <span class="calc-unit">$[ºC]$</span>
-                        <div class="form-group"><label class="control-label" for="temperatura">Temperatura</label><input
-                                class="form-control form-control" id="temperatura" name="temperatura"
-                                required="required" title="$[\frac{kg}{m^3}]$" type="number" /><span class="help-block">
-
-
-                            </span></div>
-                    </div>
-                </div>
-                <div class="row">
                     <div class="col-sm-4">
                         <span class="calc-unit">$[m]$</span>
                         <div class="form-group"><label class="control-label" for="perdaSuccao">Altura de sucção
@@ -142,29 +103,21 @@
 
                             </span></div>
                     </div>
+
                     <div class="col-sm-4">
                         <span class="calc-unit">$[m]$</span>
-                        <div class="form-group"><label class="control-label" for="perdaRecalque">Altura de recalque
-                                $L_{recalque}$</label><input class="form-control form-control" id="perdaRecalque"
-                                name="perdaRecalque" required="required" title="$[m]$" type="text" /><span
+                        <div class="form-group"><label class="control-label" for="comprimentoTotalSuccao">Comprimento
+                                total da
+                                tubulação de sucção
+                                $[-]$</label><input class="form-control form-control" id="comprimentoTotalSuccao"
+                                name="comprimentoTotalSuccao" required="required" title="$[m]$" type="text" /><span
                                 class="help-block">
 
 
                             </span></div>
                     </div>
-                    <div class="col-sm-4">
-                        <span class="calc-unit">$[m]$</span>
-                        <div class="form-group"><label class="control-label" for="comprimentoTotal">Comprimento total da
-                                tubulação de recalque
-                                $[-]$</label><input class="form-control form-control" id="comprimentoTotal"
-                                name="comprimentoTotal" required="required" title="$[m]$" type="text" /><span
-                                class="help-block">
 
-
-                            </span></div>
-                    </div>
                 </div>
-
 
             </fieldset>
             <div class="row">
@@ -177,7 +130,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('/static/images/entrada_normal.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/entrada_normal.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -199,7 +152,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('/static/images/entrada_de_borda.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/entrada_de_borda.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -221,7 +174,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('/static/images/raio_longo_90_graus.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/raio_longo_90_graus.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -246,7 +199,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('/static/images/raio_medio_90_graus.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/raio_medio_90_graus.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -268,7 +221,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('/static/images/raio_curto_90_graus.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/raio_curto_90_graus.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -290,7 +243,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('/static/images/curva_45.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/curva_45.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -313,7 +266,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('/static/images/curva_90_rd_1_5.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/curva_90_rd_1_5.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -335,7 +288,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('/static/images/registro_gaveta_aberto.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/registro_gaveta_aberto.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -358,7 +311,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('/static/images/registro_globo_aberto.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/registro_globo_aberto.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -383,7 +336,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('/static/images/registro_angulo_aberto.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/registro_angulo_aberto.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -406,7 +359,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('https://druckverlust.starpumpalliance.com/static/images/rlv-components/f_blocking_valve.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/te_passagem_direta.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -428,7 +381,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('https://druckverlust.starpumpalliance.com/static/images/rlv-components/f_angle_valve.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/te_saida_lateral.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -453,7 +406,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('https://druckverlust.starpumpalliance.com/static/images/rlv-components/f_blocking_valve.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/te_saida_bilateral.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -475,7 +428,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('https://druckverlust.starpumpalliance.com/static/images/rlv-components/f_blocking_valve.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/valvula_pe_crive.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -497,7 +450,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('https://druckverlust.starpumpalliance.com/static/images/rlv-components/f_angle_valve.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/valvula_retencao_horizontal.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -526,7 +479,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('https://druckverlust.starpumpalliance.com/static/images/rlv-components/f_blocking_valve.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/valvula_retencao_vertical.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -549,7 +502,7 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('/static/images/saida_canalizacao.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/saida_canalizacao.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
@@ -571,14 +524,14 @@
                                 <div class="row">
                                     <div class="col-xs-3">
                                         <div class="rlv-component-image"
-                                            style="background-image: url('https://druckverlust.starpumpalliance.com/static/images/rlv-components/f_angle_valve.png');">
+                                            style="background-image: url('G:/Scripts_Python/selecionadorBombaHidraulica/ClassesTCC/static/images/curva_90_rd_1_5.png');">
                                         </div>
                                     </div>
                                     <div class="col-xs-9">
                                         <div class="rlv-component">
                                             <div class="form-group"><label class="control-label"
                                                     for="curva_90_rd_1_5">Curva
-                                                    90º R/D = 1,5</label><input class="form-control form-control"
+                                                    90º R/D = 1 1/2</label><input class="form-control form-control"
                                                     id="curva_90_rd_1_5" name="curva_90_rd_1_5" placeholder="0" title=""
                                                     type="number" />
                                             </div>
@@ -603,10 +556,10 @@
                 <div class="text-center">
                     <button type="submit" class="btn btn-lg btn-primary">
 
-                        Calculate
+                        Prosseguir
 
                     </button>
-                    <input type="button" id="reset" class="btn btn-lg btn-link text-capitalize" value="Reset">
+                    <input type="button" id="reset" class="btn btn-lg btn-link text-capitalize" value="Resetar">
                 </div>
             </div>
         </form>
