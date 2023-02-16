@@ -62,7 +62,6 @@ def second():
     tempo_funcionamento = get_float("tempoFuncionamento")
     vazao_desejada = get_float("vazaoDesejada")
 
-    # if(tempo_funcionamento == None and vazao_desejada == None):
     dados.temperatura = temperatura
     dados.material = material
     dados.tempo_funcionamento = tempo_funcionamento
@@ -75,7 +74,10 @@ def second():
         dados.diametro_succao_opc = diametro_succao
         dados.diametro_recalque_opc = diametro_recalque
 
-    return render_template("second.html", diametro_succao=dados.diametro_succao_opc)
+    if hasattr(dados, 'diametro_succao_opc'):
+        return render_template("second.html", diametro_succao=dados.diametro_succao_opc)
+    else:
+        return render_template('second.html')
 
 
 @app.route(
@@ -95,8 +97,10 @@ def third():
 
     dic_succao = request.form.to_dict()
     dados.dic_succao = dic_succao
-
-    return render_template('third.html', diametro_recalque=dados.diametro_recalque_opc)
+    if hasattr(dados, 'diametro_recalque_opc'):
+        return render_template('third.html', diametro_recalque=dados.diametro_recalque_opc)
+    else:
+        return render_template('third.html')
 
 
 @app.route(
@@ -113,7 +117,7 @@ def final():
     dados.diametro_recalque = diametro_recalque
     dados.altura_recalque = altura_recalque
     dados.comprimento_recalque = comprimento_recalque
-
+    
     curva_succao = CurvaSistema(dados.temperatura, 0, dados.altura_succao,
                                 dados.diametro_succao, dados.material, dados.comprimento_succao)
 
@@ -123,17 +127,26 @@ def final():
 
     dados.dic_recalque = dic_recalque
 
-    NPSHd = curva_succao.run_succao(
+    NPSHd, hm_succao = curva_succao.run_succao(
         "Rugosidade Absoluta", dados.dic_succao)
 
     hm_recalque = curva_recalque.run_recalque(
-        "Rugosidade Absoluta", dados.dic_recalque, dados.dic_succao)
+        "Rugosidade Absoluta", dados.dic_recalque)
 
-    
+    hm_sistema = pd.merge(hm_succao, hm_recalque, on='Q')
+    hm_sistema['Hm'] = hm_sistema['Hm_x'] + hm_sistema['Hm_y']
+    hm_sistema = hm_sistema[['Q', 'Hm']]
 
-    #interseccoes = CurveIntersection(df_hm, curva_sistema, df_NPSH, NPSHd, df_potencia)
+    intersection = CurveIntersection(
+        df_hm, hm_sistema, df_NPSH, NPSHd, df_potencia)
+    df_intersection_hm = intersection.find_intersections_all_curves_hm()
+    df_intersection_npsh = intersection.find_intersections_all_curves_NPSH()
+    merged_df = intersection.treat_dataset()
 
-    return f'oi barba'
+    html_table_blue_light = build_table(
+        merged_df, "blue_light", text_align="center", width="auto"
+    )
+    return f'{html_table_blue_light}, {dados.dic_succao}, {dados.dic_recalque}, {dados.material}'
 
 
 app.run(debug=True)

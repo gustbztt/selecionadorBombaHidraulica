@@ -66,13 +66,12 @@ class CurvaSistema:
         self.set_densidade()
         self.set_viscosidade()
         self.calcula_perda_succao(dict_succao)
-        return self.NPSHd()
+        return self.NPSHd(), self.hm_sistema()
 
-    def run_recalque(self, rugosidade, dict_recalque, dict_succao):
+    def run_recalque(self, rugosidade, dict_recalque):
         self.set_rugosidade(rugosidade)
         self.set_densidade()
         self.set_viscosidade()
-        self.calcula_perda_succao(dict_succao)
         self.calcula_perda_recalque(dict_recalque)
         return self.hm_sistema()
 
@@ -116,9 +115,9 @@ class CurvaSistema:
 
         df_perdas["Perda de carga"] = df_perdas["quantidade"] * \
             df_perdas[diametro]
-        self.perda_carga_succao = df_perdas["Perda de carga"].sum()
+        self.perda_carga = df_perdas["Perda de carga"].sum()
 
-        return self.perda_carga_succao
+        return self.perda_carga
 
     def calcula_perda_recalque(self, dic):
         df = pd.DataFrame(dic, index=[0])
@@ -142,15 +141,12 @@ class CurvaSistema:
 
         df_perdas["Perda de carga"] = df_perdas["quantidade"] * \
             df_perdas[diametro]
-        self.perda_carga_recalque = df_perdas["Perda de carga"].sum()
+        self.perda_carga = df_perdas["Perda de carga"].sum()
 
-        return self.perda_carga_recalque
+        return self.perda_carga
 
     def calcula_hm(self, index):
-        """
-        retorna um valor único de Hm para uma determinada vazão
-        """
-        self.perda_carga = self.perda_carga_succao + self.perda_carga_recalque
+        # retorna um valor único de Hm para uma determinada vazão
         V = 4 * Q[index] / (math.pi * self.diametro_cano**2)
         reynolds = self.rho * V * self.diametro_cano / self.mi
         fator_de_atrito = (
@@ -188,7 +184,7 @@ class CurvaSistema:
             )
         ) ** 2
 
-        return (fator_de_atrito * self.perda_carga_succao * V**2) / (self.diametro_cano * 2 * g)
+        return (fator_de_atrito * self.perda_carga * V**2) / (self.diametro_cano * 2 * g)
 
     def hm_sistema(self):
         """
@@ -223,7 +219,7 @@ class CurvaSistema:
         lista_NPSHd = []
         for i in range(len(Q)):
             NPSHd = (P1 - pv) / self.gamma - \
-                self.calcula_NPSH(i) + self.altura_final
+                self.calcula_NPSH(i) - self.altura_final
             lista_NPSHd.append(NPSHd)
         NPSHd_sistema = {"Q": Q, "NPSHd": lista_NPSHd}
         df_NPSH_disponivel = pd.DataFrame(NPSHd_sistema)

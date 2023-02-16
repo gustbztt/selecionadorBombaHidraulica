@@ -4,7 +4,7 @@ import pandas as pd
 from curvas.CurvaSistema import CurvaSistema
 import matplotlib.pyplot as plt
 
-dict_discharge = {'diametro': '200',
+dict_discharge = {'diametroRecalque': '200',
                   'material': 'chumbo',
                   'temperatura': '25',
                   'alturaBomba': '10',
@@ -29,7 +29,7 @@ dict_discharge = {'diametro': '200',
                   'saidaCanalizacao': '0',
                   'curva_90_rd_1_5': '0'}
 
-dict_suction = {'diametro': '125',
+dict_suction = {'diametroSuccao': '125',
                 'material': 'chumbo',
                 'temperatura': '25',
                 'alturaReservatorio': '0',
@@ -159,75 +159,5 @@ class CurveIntersection:
         treated_df['Vazao_maxima_lpm'] = treated_df['Vazao_maxima']*1000*60
         treated_df = treated_df[['nome_bomba', 'Ponto_funcionamento', 'Ponto_funcionamento_lpm',
                                  'Hm_intersection', 'Vazao_maxima', 'Vazao_maxima_lpm', 'Potencia', 'Eficiencia']]
+        treated_df = treated_df.sort_values(by=['Eficiencia'], ascending=False)
         return treated_df
-
-
-'''def get_float(dic, key, default=0.0):
-    value = dic[key]
-    try:
-        return float(value)
-    except (ValueError, TypeError):
-        return default
-
-
-# parâmetros do sistema
-material = "chumbo"
-temperatura = get_float(dict_discharge, "temperatura")
-altura_bomba = get_float(dict_discharge, "alturaBomba")
-
-# parâmetros da sucção
-diametro_succao = get_float(dict_suction, "diametro") / 1000
-altura_reservatorio = get_float(dict_suction, "alturaReservatorio")
-comprimento_succao = get_float(dict_suction, "comprimentoSuccao")
-
-# parâmetros do recalque
-diametro_recalque = get_float(dict_discharge, "diametro") / 1000
-altura_recalque = get_float(dict_discharge, "alturaRecalque")
-comprimento_recalque = get_float(dict_discharge, "comprimentoRecalque")
-
-
-curva_recalque = CurvaSistema(
-    temperatura, altura_bomba, altura_recalque, diametro_recalque, material, comprimento_recalque
-)
-
-curva_succao = CurvaSistema(
-    temperatura, altura_reservatorio, altura_bomba, diametro_succao, material, comprimento_succao
-)
-
-# gets the system curve for the suction pipe and the available NPSH
-df_succao, NPSHd = curva_succao.run("Rugosidade Absoluta", dict_suction)
-
-# get the system curve for discharge pipe and a irrelevant curve
-df_recalque, not_NPSHd = curva_recalque.run(
-    "Rugosidade Absoluta", dict_discharge)
-
-# gets the overall system curve
-curva_sistema = pd.merge(df_succao, df_recalque, on="Q")
-curva_sistema["Hm"] = curva_sistema["Hm_x"] + curva_sistema["Hm_y"]
-curva_sistema = curva_sistema[["Q", "Hm"]]
-
-
-intersection = CurveIntersection(
-    df_hm, curva_sistema, df_NPSH, NPSHd, df_potencia)
-df_intersection_hm = intersection.find_intersections_all_curves_hm()
-df_intersection_npsh = intersection.find_intersections_all_curves_NPSH()
-merged_df = intersection.treat_dataset()
-
-
-Q_values = curva_sistema['Q']
-Hm_values = curva_sistema['Hm']
-Hm_bomba_csv = pd.read_csv(
-    r'C:\Users\Avell 1513\Desktop\TCC I\hmsAjustados\ksb_meganorm 80-160 161 3500.csv')
-Q_bomba = Hm_bomba_csv['Q']
-Hm_bomba = Hm_bomba_csv['Hm']
-
-print(merged_df)
-
-plt.plot(Q_values, Hm_values, color='blue')
-plt.plot(Q_bomba, Hm_bomba, color='red')
-
-plt.title("Curvas genéricas")
-plt.xlabel("Q (l/min)")
-plt.ylabel("Hm (m.c.a.)")
-plt.legend(['Curva do sistema', 'Curva da bomba'])
-plt.show()'''
