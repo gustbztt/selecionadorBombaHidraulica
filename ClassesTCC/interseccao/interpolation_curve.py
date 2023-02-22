@@ -1,58 +1,5 @@
 import numpy as np
-from dfAjustados.constants import df_hm, df_NPSH, df_potencia
 import pandas as pd
-from curvas.CurvaSistema import CurvaSistema
-import matplotlib.pyplot as plt
-
-dict_discharge = {'diametroRecalque': '200',
-                  'material': 'chumbo',
-                  'temperatura': '25',
-                  'alturaBomba': '10',
-                  'alturaRecalque': '60',
-                  'comprimentoRecalque': '70',
-                  'entradaNormal': '0',
-                  'entradaDeBorda': '0',
-                  'curva90RaioLongo': '0',
-                  'curva90RaioMedio': '3',
-                  'curva90RaioCurto': '0',
-                  'curva45': '2',
-                  'curva90rd1': '0',
-                  'registroGavetaAberto': '0',
-                  'registroGloboAberto': '2',
-                  'registroAnguloAberto': '0',
-                  'TePassagemDireta': '0',
-                  'TeSaidaLado': '0',
-                  'TeSaidaBilateral': '0',
-                  'valvulaPeCrivo': '0',
-                  'valvulaRetencaoLeve': '0',
-                  'valvulaRetencaoPesado': '0',
-                  'saidaCanalizacao': '0',
-                  'curva_90_rd_1_5': '0'}
-
-dict_suction = {'diametroSuccao': '125',
-                'material': 'chumbo',
-                'temperatura': '25',
-                'alturaReservatorio': '0',
-                'alturaBomba': '10',
-                'comprimentoSuccao': '90',
-                'entradaNormal': '1',
-                'entradaDeBorda': '0',
-                'curva90RaioLongo': '0',
-                'curva90RaioMedio': '0',
-                'curva90RaioCurto': '0',
-                'curva45': '1',
-                'curva90rd1': '0',
-                'registroGavetaAberto': '0',
-                'registroGloboAberto': '2',
-                'registroAnguloAberto': '0',
-                'TePassagemDireta': '0',
-                'TeSaidaLado': '0',
-                'TeSaidaBilateral': '0',
-                'valvulaPeCrivo': '1',
-                'valvulaRetencaoLeve': '0',
-                'valvulaRetencaoPesado': '0',
-                'saidaCanalizacao': '0',
-                'curva_90_rd_1_5': '0'}
 
 
 class CurveIntersection:
@@ -86,6 +33,7 @@ class CurveIntersection:
             x_intersection = x1[mask] + ua[mask] * (x2[mask] - x1[mask])
             y_intersection = y1_pump[mask] + \
                 ua[mask] * (y2_pump[mask] - y1_pump[mask])
+
             return x_intersection[0], y_intersection[0]
         else:
             return None, None
@@ -100,28 +48,38 @@ class CurveIntersection:
             Hm_pump = group['Hm_x'].values
             Hm_system = group['Hm_y'].values
             intersection = self.find_intersection(Q, Hm_pump, Hm_system)
-            if intersection[0] is not None:
-                intersection_points.append(
-                    {'nome_bomba': name, 'Q_intersection_hm': intersection[0], 'Hm_intersection': intersection[1]})
+            # if intersection[0] is not None:
+            intersection_points.append(
+                {'nome_bomba': name, 'Q_intersection_hm': intersection[0], 'Hm_intersection': intersection[1]})
         self.df_intersection_hm = pd.DataFrame(intersection_points)
 
         return self.df_intersection_hm
 
     def find_intersections_all_curves_NPSH(self):
         self.df_npsh = self.df_npsh.sort_values('Q')
+
         self.merged_df = pd.merge_asof(
             self.df_npsh, self.NPSHd, on='Q', tolerance=1e-6)
+
         intersection_points = []
         for name, group in self.merged_df.groupby('nome_bomba'):
             Q = group['Q'].values
             NPSH_pump = group['NPSH'].values
             NPSH_system = group['NPSHd'].values
             intersection = self.find_intersection(Q, NPSH_pump, NPSH_system)
-            if intersection[0] is not None:
-                intersection_points.append(
-                    {'nome_bomba': name, 'Q_intersection_NPSH': intersection[0], 'NPSH_intersection': intersection[1]})
+
+            intersection_points.append({
+                'nome_bomba': name,
+                'Q_intersection_NPSH': intersection[0],
+                'NPSH_intersection': intersection[1]
+            })
 
         self.df_intersection_npsh = pd.DataFrame(intersection_points)
+        last_NPSHr = self.df_npsh.groupby('nome_bomba')['NPSH'].last()
+        last_NPSHd = self.merged_df.groupby('nome_bomba')['NPSHd'].last()
+        self.df_intersection_npsh = self.df_intersection_npsh.merge(
+            last_NPSHr, on='nome_bomba').merge(
+            last_NPSHd, on='nome_bomba')
 
         return self.df_intersection_npsh
 
@@ -131,13 +89,12 @@ class CurveIntersection:
                              self.df_intersection_npsh, on='nome_bomba')
 
         # Filter rows where Q_intersection_x (from df_hm) is lower than Q_intersection_y (from df_NPSH)
-        filtered_df = merged_df[merged_df['Q_intersection_hm']
-                                < merged_df['Q_intersection_NPSH']]
+        filtered_df = merged_df[(merged_df['Q_intersection_hm'] < merged_df['Q_intersection_NPSH']) | (
+            merged_df['Q_intersection_NPSH'].isna() & (merged_df['NPSH'] < merged_df['NPSHd']))].dropna(subset=['Hm_intersection'])
 
         filtered_df = filtered_df.rename(columns={
-                                         'Q_intersection_hm': 'Ponto_funcionamento', 'Q_intersection_NPSH': 'Vazao_maxima'})
+            'Q_intersection_hm': 'Ponto_funcionamento', 'Q_intersection_NPSH': 'Vazao_maxima'})
 
-        # Print the resulting dataframe
         return filtered_df
 
     def get_eficiencia(self):

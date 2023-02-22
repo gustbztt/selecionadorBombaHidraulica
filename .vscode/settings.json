@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./ClassesTCC"
+    ],
+    "python.analysis.typeCheckingMode": "off"
+}

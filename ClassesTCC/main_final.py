@@ -1,5 +1,3 @@
-import copy
-
 import pandas as pd
 from curvas.CurvaSistema import CurvaSistema
 from dfAjustados.constants import df_hm, df_NPSH, df_potencia
@@ -117,7 +115,7 @@ def final():
     dados.diametro_recalque = diametro_recalque
     dados.altura_recalque = altura_recalque
     dados.comprimento_recalque = comprimento_recalque
-    
+
     curva_succao = CurvaSistema(dados.temperatura, 0, dados.altura_succao,
                                 dados.diametro_succao, dados.material, dados.comprimento_succao)
 
@@ -146,7 +144,8 @@ def final():
     html_table_blue_light = build_table(
         merged_df, "blue_light", text_align="center", width="auto"
     )
-    return f'{html_table_blue_light}, {dados.dic_succao}, {dados.dic_recalque}, {dados.material}'
+
+    return f'{html_table_blue_light}'
 
 
 app.run(debug=True)

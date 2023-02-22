@@ -1,7 +1,3 @@
-dict_diametro_economico = {'funcionamentoDiario': '20',
-                           'vazaoDesejada': '250'}
-
-
 def get_float(dic, key, default=0.0):
     value = dic[key]
     try:
@@ -13,7 +9,7 @@ def get_float(dic, key, default=0.0):
 def get_diametro_economico(vazao_desejada, funcionamento_diario):
     import bisect
     # lista de diametros comerciais possíveis
-    diametros = [13, 19, 25, 32, 38, 50, 63, 75, 100, 125, 200, 250, 300]
+    diametros = [13, 19, 25, 32, 38, 50, 63, 75, 100, 125, 150, 200, 250, 300]
     # parâmetros para diâmetro ideal
 
     # get diametro economico em mm
@@ -26,6 +22,6 @@ def get_diametro_economico(vazao_desejada, funcionamento_diario):
     if i == len(diametros):
         return diametros[-2], diametros[-1]
 
-    diametro_succao = diametros[i-1]
-    diametro_recalque = diametros[i]
+    diametro_succao = diametros[i]
+    diametro_recalque = diametros[i-1]
     return diametro_succao, diametro_recalque

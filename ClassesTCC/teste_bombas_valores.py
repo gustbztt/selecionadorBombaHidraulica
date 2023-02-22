@@ -8,15 +8,14 @@ import math
 from dfAjustados.constants import TAB_PERDAS
 import matplotlib.pyplot as plt
 
-dict_succao = {'diametroSuccao': '50', 'perdaSuccao': '-1,5', 'comprimentoTotalSuccao': '2', 'entradaNormal': '0', 'entradaDeBorda': '1', 'curva90RaioLongo': '0', 'curva90RaioMedio': '0', 'curva90RaioCurto': '0', 'curva45': '0',
-               'curva90rd1': '0', 'registroGavetaAberto': '1', 'registroGloboAberto': '0', 'registroAnguloAberto': '0', 'TePassagemDireta': '0', 'TeSaidaLado': '0', 'TeSaidaBilateral': '0', 'valvulaPeCrivo': '0', 'valvulaRetencaoLeve': '0', 'valvulaRetencaoPesado': '0', 'saidaCanalizacao': '0', 'curva_90_rd_1_5': '0'}
-dict_recalque = {'diametroRecalque': '50', 'perdaRecalque': '27', 'comprimentoTotal': '32', 'entradaNormal': '0', 'entradaDeBorda': '0', 'curva90RaioLongo': '3', 'curva90RaioMedio': '0', 'curva90RaioCurto': '0', 'curva45': '0', 'curva90rd1': '0',
-                 'registroGavetaAberto': '1', 'registroGloboAberto': '0', 'registroAnguloAberto': '0', 'TePassagemDireta': '1', 'TeSaidaLado': '1', 'TeSaidaBilateral': '0', 'valvulaPeCrivo': '0', 'valvulaRetencaoLeve': '1', 'valvulaRetencaoPesado': '0', 'saidaCanalizacao': '0', 'curva_90_rd_1_5': '0'}
-
+dict_succao = {'diametroSuccao': '150', 'perdaSuccao': '-1,5', 'comprimentoTotalSuccao': '2', 'entradaNormal': '0', 'entradaDeBorda': '1', 'curva90RaioLongo': '0', 'curva90RaioMedio': '0', 'curva90RaioCurto': '0', 'curva45': '0', 'curva90rd1': '0', 'registroGavetaAberto': '1',
+               'registroGloboAberto': '0', 'registroAnguloAberto': '0', 'TePassagemDireta': '0', 'TeSaidaLado': '0', 'TeSaidaBilateral': '0', 'valvulaPeCrivo': '0', 'valvulaRetencaoLeve': '0', 'valvulaRetencaoPesado': '0', 'saidaCanalizacao': '0', 'curva_90_rd_1_5': '0'}
+dict_recalque = {'diametroRecalque': '150', 'perdaRecalque': '27', 'comprimentoTotal': '32', 'entradaNormal': '0', 'entradaDeBorda': '0', 'curva90RaioLongo': '3', 'curva90RaioMedio': '0', 'curva90RaioCurto': '0', 'curva45': '0', 'curva90rd1': '0', 'registroGavetaAberto': '1',
+                 'registroGloboAberto': '0', 'registroAnguloAberto': '0', 'TePassagemDireta': '1', 'TeSaidaLado': '0', 'TeSaidaBilateral': '0', 'valvulaPeCrivo': '0', 'valvulaRetencaoLeve': '1', 'valvulaRetencaoPesado': '0', 'saidaCanalizacao': '1', 'curva_90_rd_1_5': '0'}
 
 # from .constants import Q, V, rho, mi, g, gamma
-step = 0.000001
-Q = np.arange(step, 0.0555556, step)
+step = 0.00001
+Q = np.arange(step, 0.1, step)
 V = np.zeros(len(Q))
 g = 9.81
 
@@ -168,7 +167,7 @@ def calcula_perda_succao(dic):
 
     # assuming your dataframe is named df
     new_column_names = {i: j for i, j in enumerate(
-        [13, 19, 25, 32, 38, 50, 63, 75, 100, 125, 200, 250, 300])}
+        [13, 19, 25, 32, 38, 50, 63, 75, 100, 125, 150, 200, 250, 300])}
     df_perdas = df_perdas.rename(columns=new_column_names)
     diametro = float(diametro)
     df_perdas = df_perdas[[diametro, "quantidade"]]
@@ -195,7 +194,7 @@ def calcula_perda_recalque(dic):
 
     # assuming your dataframe is named df
     new_column_names = {i: j for i, j in enumerate(
-        [13, 19, 25, 32, 38, 50, 63, 75, 100, 125, 200, 250, 300])}
+        [13, 19, 25, 32, 38, 50, 63, 75, 100, 125, 150, 200, 250, 300])}
     df_perdas = df_perdas.rename(columns=new_column_names)
     diametro = float(diametro)
     df_perdas = df_perdas[[diametro, "quantidade"]]
@@ -219,13 +218,13 @@ material = "PVC"
 comprimento_tub_succao = 2
 comprimento_tub_recalque = 32
 rugosidade = 0.05
-perda_localizada_succao = 1.9
-perda_localizada_recalque = 12.5
+perda_localizada_succao = calcula_perda_succao(dict_succao)
+perda_localizada_recalque = calcula_perda_recalque(dict_recalque)
 
-Succao = CurvaSistema(temperatura, altura_reservatorio,
-                      altura_bomba, d1, material, comprimento_tub_succao, perda_localizada_succao, rugosidade)
-Recalque = CurvaSistema(temperatura, 0, altura_reservatorio_recalque,
-                        d2, material, comprimento_tub_recalque, perda_localizada_recalque, rugosidade)
+Succao = CurvaSistema(20, 0,
+                      -18, 50/1000, material, 2, perda_localizada_succao, 0.05)
+Recalque = CurvaSistema(20, 0, 27,
+                        50/1000, material, 32, perda_localizada_recalque, 0.05)
 
 hm_succao, NPSHd = Succao.run()
 hm_recalque, _,  = Recalque.run()
@@ -235,23 +234,24 @@ hm_sistema = pd.merge(hm_succao, hm_recalque, on='Q')
 hm_sistema['Hm'] = hm_sistema['Hm_x'] + hm_sistema['Hm_y']
 hm_sistema = hm_sistema[['Q', 'Hm']]
 
-print(hm_succao)
 
-Q_values = hm_sistema['Q']*3600
-Hm_values = hm_sistema['Hm']
+Q_values = NPSHd['Q']
+NPSHd_values = NPSHd['NPSHd']
 
-path = 'C:\\Users\\Avell 1513\\Desktop\\TCC I\\figuras\\graph_invisible.png'
+'''path = 'C:\\Users\\Avell 1513\\Desktop\\TCC I\\figuras\\graph_invisible_NPSHd.png'
 
 
 # Set the axis limits
-plt.xlim(0, 40)
-plt.ylim(25, 70)
+plt.xlim(0, 140)
+plt.ylim(0, 10)
 
 plt.tick_params(labelcolor='none', top=False,
                 bottom=False, left=False, right=False)
 
 # Plot the data with a solid color line
-plt.plot(Q_values, Hm_values, color='blue')
+plt.plot(Q_values, NPSHd, color='blue')
 
 # Save the plot with a transparent background
 plt.savefig(path, transparent=True)
+'''
+print(NPSHd)

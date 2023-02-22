@@ -5,7 +5,7 @@ import pandas as pd
 
 # from .constants import Q, V, rho, mi, g, gamma
 step = 0.00001
-Q = np.arange(step, 0.1, step)
+Q = np.arange(step, 0.2, step)
 V = np.zeros(len(Q))
 g = 9.81
 
@@ -106,7 +106,7 @@ class CurvaSistema:
 
         # assuming your dataframe is named df
         new_column_names = {i: j for i, j in enumerate(
-            [13, 19, 25, 32, 38, 50, 63, 75, 100, 125, 200, 250, 300])}
+            [13, 19, 25, 32, 38, 50, 63, 75, 100, 125, 150, 200, 250, 300])}
         df_perdas = df_perdas.rename(columns=new_column_names)
         diametro = float(diametro)
         df_perdas = df_perdas[[diametro, "quantidade"]]
@@ -132,7 +132,7 @@ class CurvaSistema:
 
         # assuming your dataframe is named df
         new_column_names = {i: j for i, j in enumerate(
-            [13, 19, 25, 32, 38, 50, 63, 75, 100, 125, 200, 250, 300])}
+            [13, 19, 25, 32, 38, 50, 63, 75, 100, 125, 150, 200, 250, 300])}
         df_perdas = df_perdas.rename(columns=new_column_names)
         diametro = float(diametro)
         df_perdas = df_perdas[[diametro, "quantidade"]]
