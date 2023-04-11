@@ -13,19 +13,20 @@
     <!-- Bootstrap core CSS -->
 
 
-    <link href="https://druckverlust.starpumpalliance.com/static/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+
+
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
 
-    <link href="https://druckverlust.starpumpalliance.com/static/bower_components/jquery.steps/css/bootstrap.css"
-        rel="stylesheet">
 
 
     <script type="text/x-mathjax-config">
-        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-    </script>
-    <script
-        src="https://druckverlust.starpumpalliance.com/static/bower_components/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="/en/frontend/jsi18n/"></script>
+        MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}}); 
+        </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"
+        async></script>
+
+
 </head>
 
 <body>
@@ -33,7 +34,7 @@
         <nav id="language-picker">
             <ul class="nav navbar-nav">
 
-                <li><a href="/en/frictional-loss/help">Início</a></li>
+                <li><a href="/">Início</a></li>
 
 
             </ul>
@@ -50,7 +51,8 @@
     <div id="contemt">
 
 
-        <form id="calc-frictional-loss" action="{{url_for('second')}}" class="simple-box" method="post">
+        <form onsubmit="return validateForm()" id="calc-frictional-loss" action="{{url_for('second')}}"
+            class="simple-box" method="post">
             <input type='hidden' name='csrfmiddlewaretoken' value='ihyLZuKbb3iXyHLxsOGSlJ2Fniy6jk1j' />
             <fieldset class="rlv-parameters">
                 <legend>Características do Sistema</legend>
@@ -60,7 +62,7 @@
                     <span class="calc-unit">$[-]$</span>
                     <div class="form-group"><label class="control-label" for="id_material">Material do encanamento
                         </label><select class="form-control form-control" id="id_material" name="material"
-                            required="required">
+                            required="required" tabindex="1">
 
                             <option value="chumbo">Chumbo</option>
                             <option value="latao">Latão</option>
@@ -97,7 +99,7 @@
                     <span class="calc-unit">$[ºC]$</span>
                     <div class="form-group"><label class="control-label" for="temperatura">Temperatura</label><input
                             class="form-control form-control" id="temperatura" name="temperatura" required="required"
-                            title="$[\frac{kg}{m^3}]$" type="number" /><span class="help-block">
+                            tabindex="2" title="$[\frac{kg}{m^3}]$" type="number" /><span class="help-block">
 
 
                         </span></div>
@@ -107,11 +109,11 @@
 
 
                 <div class="col-md-6">
-                    <span class="calc-unit">$[ºC]$</span>
+                    <span class="calc-unit">$[l/min]$</span>
                     <div class="form-group">
                         <label class="control-label" for="vazaoDesejada">Vazão desejada</label>
-                        <input class="form-control form-control" id="vazaoDesejada" name="vazaoDesejada"
-                             title="$[\frac{kg}{m^3}]$" type="number" />
+                        <input class="form-control form-control" id="vazaoDesejada" name="vazaoDesejada" tabindex="3"
+                            title="$[\frac{kg}{m^3}]$" type="number" />
                         <span class="help-block"></span>
                     </div>
                 </div>
@@ -122,11 +124,11 @@
 
 
                 <div class="col-md-6">
-                    <span class="calc-unit">$[ºC]$</span>
+                    <span class="calc-unit">$[-]$</span>
                     <div class="form-group"><label class="control-label" for="tempoFuncionamento">Tempo de
                             funcionamento (horas por dia)</label><input class="form-control form-control"
-                            id="tempoFuncionamento" name="tempoFuncionamento"
-                            title="$[\frac{kg}{m^3}]$" type="number" /><span class="help-block">
+                            id="tempoFuncionamento" name="tempoFuncionamento" tabindex="4" title="$[\frac{kg}{m^3}]$"
+                            type="number" /><span class="help-block">
 
 
                         </span></div>
@@ -158,13 +160,36 @@
 ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
 
-    <script src="https://druckverlust.starpumpalliance.com/static/bower_components/jquery/dist/jquery.min.js"
-        type="text/javascript"></script>
-    <script src="https://druckverlust.starpumpalliance.com/static/bower_components/bootstrap/dist/js/bootstrap.min.js"
-        type="text/javascript"></script>
-    <script src="https://druckverlust.starpumpalliance.com/static/js/reset.js" type="text/javascript"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/reset_first.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/iframe-resizer/3.6.3/iframeResizer.contentWindow.min.js"
         type="text/javascript"></script>
+
+    <script>
+        function validateForm() {
+            var temperatura = document.getElementById("temperatura").value;
+            var tempoFuncionamento = document.getElementById("tempoFuncionamento").value;
+
+
+
+
+            if (temperatura < 0 || temperatura > 100) {
+                alert("Temperatura deve estar entre 0°C e 100°C");
+                return false;
+            }
+
+            if (tempoFuncionamento < 0 || tempoFuncionamento > 24) {
+                alert("O dia tem entre 0 e 24 horas");
+                return false;
+            }
+
+
+
+            return true;
+        }
+    </script>
 
 </body>
 

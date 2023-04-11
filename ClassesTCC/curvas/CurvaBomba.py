@@ -39,7 +39,7 @@ class GetCurvaBomba:
 
         # polival(p, x); p = coeficientes do maior para a constante; x = vetor
         #  numpy
-        step = 0.00001
+        step = 0.000003
         vazao = np.arange(0, last_number, step)
         # vazao = vetor numpy; np.polival(...) = função curva
         """plt.plot(vazao, np.polyval(coeficientes_curva, vazao))

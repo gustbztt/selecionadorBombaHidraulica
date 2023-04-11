@@ -3,12 +3,13 @@ import pandas as pd
 
 
 class CurveIntersection:
-    def __init__(self, df_pump, df_system, df_npsh, NPSHd, df_potencia):
+    def __init__(self, df_pump, df_system, df_npsh, NPSHd, df_potencia, rho):
         self.df_pump = df_pump
         self.df_system = df_system
         self.df_npsh = df_npsh
         self.NPSHd = NPSHd
         self.df_potencia = df_potencia
+        self.rho = rho
 
     def find_intersection(self, Q, Hm_pump, Hm_system):
         x1, x2 = np.array(Q[:-1]), np.array(Q[1:])
@@ -41,7 +42,7 @@ class CurveIntersection:
     def find_intersections_all_curves_hm(self):
         self.df_pump = self.df_pump.sort_values('Q')
         self.merged_df = pd.merge_asof(
-            self.df_pump, self.df_system, on='Q', tolerance=1e-6)
+            self.df_pump, self.df_system, on='Q', tolerance=0.000003)
         intersection_points = []
         for name, group in self.merged_df.groupby('nome_bomba'):
             Q = group['Q'].values
@@ -59,7 +60,7 @@ class CurveIntersection:
         self.df_npsh = self.df_npsh.sort_values('Q')
 
         self.merged_df = pd.merge_asof(
-            self.df_npsh, self.NPSHd, on='Q', tolerance=1e-6)
+            self.df_npsh, self.NPSHd, on='Q', tolerance=0.000003)
 
         intersection_points = []
         for name, group in self.merged_df.groupby('nome_bomba'):
@@ -98,7 +99,7 @@ class CurveIntersection:
         return filtered_df
 
     def get_eficiencia(self):
-        gamma = 9790.38
+        gamma = self.rho*9.81
         merged_df = self.merge_dataframes()
         merged_df['Ponto_funcionamento'] = merged_df['Ponto_funcionamento'].round(
             5)
@@ -112,9 +113,18 @@ class CurveIntersection:
 
     def treat_dataset(self):
         treated_df = self.get_eficiencia()
-        treated_df['Ponto_funcionamento_lpm'] = treated_df['Ponto_funcionamento']*1000*60
-        treated_df['Vazao_maxima_lpm'] = treated_df['Vazao_maxima']*1000*60
-        treated_df = treated_df[['nome_bomba', 'Ponto_funcionamento', 'Ponto_funcionamento_lpm',
-                                 'Hm_intersection', 'Vazao_maxima', 'Vazao_maxima_lpm', 'Potencia', 'Eficiencia']]
+        treated_df['Ponto de funcionamento (l/min)'] = treated_df['Ponto_funcionamento']*1000*60
+
+        treated_df = treated_df[['nome_bomba', 'Ponto_funcionamento',
+                                 'Ponto de funcionamento (l/min)', 'Hm_intersection',  'Potencia', 'Eficiencia']]
         treated_df = treated_df.sort_values(by=['Eficiencia'], ascending=False)
+        treated_df.columns = ['Nome da bomba', 'Ponto de funcionamento',
+                              'Ponto de funcionamento (l/min)', 'Hm', 'Potência', 'Eficiência']
+        treated_df['Hm'] = treated_df['Hm'].round(2)
+        treated_df['Ponto de funcionamento'] = treated_df['Ponto de funcionamento'].round(
+            3)
+        treated_df['Eficiência'] = treated_df['Eficiência'].round(4)
+        treated_df['Potência'] = treated_df['Potência'].round(2)
+        treated_df = treated_df.drop_duplicates(subset=['Nome da bomba'])
+
         return treated_df

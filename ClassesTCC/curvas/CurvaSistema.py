@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 # from .constants import Q, V, rho, mi, g, gamma
-step = 0.00001
+step = 0.000003
 Q = np.arange(step, 0.2, step)
 V = np.zeros(len(Q))
 g = 9.81
@@ -65,13 +65,15 @@ class CurvaSistema:
         self.set_rugosidade(rugosidade)
         self.set_densidade()
         self.set_viscosidade()
+        self.set_pv()
         self.calcula_perda_succao(dict_succao)
-        return self.NPSHd(), self.hm_sistema()
+        return self.NPSHd(), self.hm_sistema(), self.rho
 
     def run_recalque(self, rugosidade, dict_recalque):
         self.set_rugosidade(rugosidade)
         self.set_densidade()
         self.set_viscosidade()
+        self.set_pv()
         self.calcula_perda_recalque(dict_recalque)
         return self.hm_sistema()
 
@@ -92,6 +94,13 @@ class CurvaSistema:
     def set_densidade(self):
 
         self.rho = 1000 - 0.0178 * (self.temperatura_agua - 4) ** 1.7
+
+    def set_pv(self):
+        A = 8.07131
+        B = 1730.63
+        C = 233.426
+        exp = A - (B/(C+self.temperatura_agua))
+        self.Pv = (10**exp)*133.322
 
     def calcula_perda_succao(self, dic):
         df = pd.DataFrame(dic, index=[0])
@@ -215,10 +224,10 @@ class CurvaSistema:
         # npshd = (p1-pv)/gamma + Hs - Hp12
         self.gamma = self.rho * g
         P1 = (10330 - self.altura_inicial) * g / 0.9
-        pv = 2340
+
         lista_NPSHd = []
         for i in range(len(Q)):
-            NPSHd = (P1 - pv) / self.gamma - \
+            NPSHd = (P1 - self.Pv) / self.gamma - \
                 self.calcula_NPSH(i) - self.altura_final
             lista_NPSHd.append(NPSHd)
         NPSHd_sistema = {"Q": Q, "NPSHd": lista_NPSHd}
